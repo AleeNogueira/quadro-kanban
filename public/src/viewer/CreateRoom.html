@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entrar na Sala</title>
+    <title>Criar Nova Sala</title>
     <style>
         * {
             box-sizing: border-box;
@@ -48,7 +48,7 @@
             color: #94a3b8;
         }
 
-        input {
+        input, textarea {
             width: 100%;
             padding: 12px;
             border-radius: 6px;
@@ -60,14 +60,19 @@
             transition: border-color 0.3s;
         }
 
-        input:focus {
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        input:focus, textarea:focus {
             border-color: #38bdf8;
         }
 
         .btn {
             width: 100%;
             padding: 12px;
-            background-color: #2563eb;
+            background-color: #059669;
             color: #ffffff;
             border: none;
             border-radius: 6px;
@@ -79,7 +84,7 @@
         }
 
         .btn:hover {
-            background-color: #1d4ed8;
+            background-color: #047857;
         }
 
         .footer-link {
@@ -103,23 +108,28 @@
 <body>
 
 <div class="container">
-    <h2>Entrar na Sala</h2>
-    <form action="/api/entrar-sala" method="POST">
+    <h2>Criar Nova Sala</h2>
+    <form action="/api/CreateRoom" method="POST">
         <div class="form-group">
-            <label for="nome">Nome *</label>
-            <input type="text" id="nome" name="nome" placeholder="Seu nome" required>
+            <label for="codigo_sala">Código da Sala *</label>
+            <input type="text" id="codigo_sala" name="codigo_sala" placeholder="Defina um código" required>
         </div>
 
         <div class="form-group">
-            <label for="codigo">Código da Sala *</label>
-            <input type="text" id="codigo" name="codigo" placeholder="Ex: 123456" required>
+            <label for="nome_sala">Nome da Sala *</label>
+            <input type="text" id="nome_sala" name="nome_sala" placeholder="Nome da sua sala" required>
         </div>
 
-        <button type="submit" class="btn">Entrar na Sala</button>
+        <div class="form-group">
+            <label for="descricao">Descrição (opcional)</label>
+            <textarea id="descricao" name="descricao" placeholder="Sobre o que é esta sala?"></textarea>
+        </div>
+
+        <button type="submit" class="btn">Criar Sala</button>
     </form>
 
     <div class="footer-link">
-        <p>Criar nova sala? <a href="/CreateRoom.html">Clique aqui</a></p>
+        <p>Já tem uma sala? <a href="/">Voltar para Login</a></p>
     </div>
 </div>
 
