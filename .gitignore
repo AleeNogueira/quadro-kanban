@@ -1,0 +1,14 @@
+# Dependências do Node (muito pesadas, baixadas via npm install)
+node_modules/
+
+# Configurações do seu editor / IDE
+.idea/
+
+# Segredos e variáveis de ambiente (Chaves Supabase, Gemini, etc.)
+.env
+.env.local
+.env.production
+
+# Arquivos temporários do Sistema Operacional
+.DS_Store
+Thumbs.db

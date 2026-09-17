@@ -1,13 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const roomController = require('../controller/Controller');
+const Controller = require('../controller/Controller');
 
 // Rotas de Páginas (GET)
-router.get('/', roomController.getLoginPage);
-router.get('/createroom', roomController.getCreateRoomPage);
+router.get('/', Controller.getCreateUser);
+router.get('/LoginIn', Controller.getLoginPage);
+router.get('/JoinRoom', Controller.getJoinRoom);
+router.get('/CreateRoom', Controller.getCreateRoomPage);
+router.get('/Home',Controller.getSalaPage);
 
 // Rotas de Ação (POST)
-router.post('/api/entrar-sala', roomController.entrarSala);
-router.post('/api/CreateRoom', roomController.criarSala);
+router.post('/api/CreateUser', Controller.CreateUser);
+router.post('/api/LoginUser', Controller.LoginUser);
+router.post('/api/JoinRoom', Controller.JoinRoom);
+router.post('/api/CreateRoom', Controller.CreateRoom);
 
 module.exports = router;

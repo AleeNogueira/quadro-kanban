@@ -109,10 +109,10 @@
 
 <div class="container">
     <h2>Criar Nova Sala</h2>
-    <form action="/api/CreateRoom" method="POST">
+    <form id="formCreateRoom" action="/api/CreateRoom" method="POST">
         <div class="form-group">
             <label for="codigo_sala">Código da Sala *</label>
-            <input type="text" id="codigo_sala" name="codigo_sala" placeholder="Defina um código" required>
+            <input type="text" id="codigo_sala" name="codigo_sala" placeholder="Defina um código numerico" required>
         </div>
 
         <div class="form-group">
@@ -129,9 +129,40 @@
     </form>
 
     <div class="footer-link">
-        <p>Já tem uma sala? <a href="/">Voltar para Login</a></p>
+        <p>Já tem uma sala? <a href="/JoinRoom">Voltar para Login</a></p>
     </div>
 </div>
 
+<script>
+    document.getElementById('formCreateRoom').addEventListener('submit', async (e) => {
+        e.preventDefault(); // Impede o recarregamento da página
+
+        const codigo_sala = document.getElementById('codigo_sala').value;
+        const nome_sala = document.getElementById('nome_sala').value;
+        const descricao = document.getElementById('descricao').value;
+
+        try {
+            const response = await fetch('/api/CreateRoom', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ codigo_sala, nome_sala, descricao })
+            });
+
+            const resultado = await response.json();
+
+            if (resultado.sucesso) {
+                localStorage.setItem('quadroLogado', JSON.stringify(resultado.quadro || { codigo_sala }));
+                alert('Sala cadastrada com sucesso!');
+                window.location.href = '/Home';
+            } else {
+                alert('Erro ao cadastrar: ' + resultado.erro);
+            }
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+        }
+    });
+</script>
 </body>
 </html>

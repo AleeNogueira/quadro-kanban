@@ -103,53 +103,47 @@
 <body>
 
 <div class="container">
-    <h2>Criar usuario</h2>
-    <form id="formUser" action="/api/CreateUser" method="POST">
+    <h2>Entrar na Sala</h2>
+    <form id="formJoinRoom" action="/api/JoinRoom" method="POST">
         <div class="form-group">
-            <label for="nome">Nome *</label>
-            <input type="text" id="nome" name="nome" placeholder="Seu nome" required>
+            <label for="codigo">Código da Sala *</label>
+            <input type="TEXT" id="codigo" name="codigo" placeholder="Ex: 123456" required>
         </div>
 
-        <div class="form-group">
-            <label for="email">Email *</label>
-            <input type="text" id="email" name="email" placeholder="seuemail@teste.com" required>
-        </div>
-
-        <button type="submit" class="btn">Registrar Usuário</button>
+        <button type="submit" class="btn">Entrar na Sala</button>
     </form>
 
     <div class="footer-link">
-        <p>Já tem Conta? <a href="/LoginIn">Clique aqui</a></p>
+        <p>Criar nova sala? <a href="/CreateRoom">Clique aqui</a></p>
     </div>
 </div>
 
 <script>
-    document.getElementById('formUser').addEventListener('submit', async (e) => {
-        e.preventDefault(); // Impede o recarregamento da página
+    document.getElementById('formEntrarSala').addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-        const nome = document.getElementById('nome').value;
-        const email = document.getElementById('email').value;
+        const codigo = document.getElementById('codigoSala').value.trim();
 
         try {
-            const response = await fetch('/api/CreateUser', {
+            const response = await fetch('/api/JoinRoom', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ nome, email })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ codigo })
             });
 
             const resultado = await response.json();
 
             if (resultado.sucesso) {
-                localStorage.setItem('usuarioLogado', JSON.stringify(resultado.usuario || { nome, email }));
-                alert('Usuário cadastrado com sucesso!');
-                window.location.href = '/JoinRoom';
+                // Guarda os dados da sala logada para usar na conexão via WebSocket depois
+                localStorage.setItem('salaAtiva', JSON.stringify(resultado.quadro || { codigo }));
+
+                window.location.href = '/Home';
             } else {
-                alert('Erro ao cadastrar: ' + resultado.erro);
+                alert(resultado.erro);
             }
         } catch (error) {
-            console.error('Erro na requisição:', error);
+            console.error('Erro ao validar sala:', error);
+            alert('Falha ao conectar com o servidor.');
         }
     });
 </script>

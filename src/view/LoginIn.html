@@ -103,53 +103,49 @@
 <body>
 
 <div class="container">
-    <h2>Criar usuario</h2>
-    <form id="formUser" action="/api/CreateUser" method="POST">
-        <div class="form-group">
-            <label for="nome">Nome *</label>
-            <input type="text" id="nome" name="nome" placeholder="Seu nome" required>
-        </div>
-
+    <h2>Entrar na conta</h2>
+    <form id="formLogin" action="/api/LoginUser" method="POST">
         <div class="form-group">
             <label for="email">Email *</label>
             <input type="text" id="email" name="email" placeholder="seuemail@teste.com" required>
         </div>
 
-        <button type="submit" class="btn">Registrar Usuário</button>
+        <button type="submit" class="btn">Entrar</button>
     </form>
 
     <div class="footer-link">
-        <p>Já tem Conta? <a href="/LoginIn">Clique aqui</a></p>
+        <p>Não tem conta? <a href="/">Clique aqui</a></p>
     </div>
 </div>
 
 <script>
-    document.getElementById('formUser').addEventListener('submit', async (e) => {
+    document.getElementById('formLogin').addEventListener('submit', async (e) => {
         e.preventDefault(); // Impede o recarregamento da página
 
-        const nome = document.getElementById('nome').value;
         const email = document.getElementById('email').value;
 
         try {
-            const response = await fetch('/api/CreateUser', {
+            const response = await fetch('/api/LoginUser', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ nome, email })
+                body: JSON.stringify({ email })
             });
 
             const resultado = await response.json();
 
             if (resultado.sucesso) {
-                localStorage.setItem('usuarioLogado', JSON.stringify(resultado.usuario || { nome, email }));
-                alert('Usuário cadastrado com sucesso!');
+                // Guarda os dados do usuário logado no navegador para usar depois
+                localStorage.setItem('usuarioLogado', JSON.stringify(resultado.usuario));
+
+                // Redireciona para o Kanban / Sala
                 window.location.href = '/JoinRoom';
             } else {
-                alert('Erro ao cadastrar: ' + resultado.erro);
+                alert(resultado.erro);
             }
         } catch (error) {
-            console.error('Erro na requisição:', error);
+            console.error('Erro na autenticação:', error);
         }
     });
 </script>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KANBAN LIVE PRO — SPRINT 24</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f3f4f6;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Navbar Topo */
+        header {
+            background-color: #0d3b66;
+            color: #ffffff;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .status-bar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .ws-status {
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+        }
+
+        .avatars {
+            display: flex;
+            gap: -4px;
+        }
+
+        .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: #4b5563;
+            border: 2px solid #0d3b66;
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: -6px;
+        }
+
+        /* Container do Quadro */
+        .kanban-board {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            padding: 20px 24px;
+            overflow-x: auto;
+        }
+
+        /* Colunas */
+        .column {
+            background-color: #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            height: 100%;
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 8px;
+            border-bottom: 2px solid transparent;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .col-todo { border-color: #ef4444; color: #b91c1c; }
+        .col-progress { border-color: #f97316; color: #c2410c; }
+        .col-review { border-color: #1d4ed8; color: #1e40af; }
+        .col-done { border-color: #10b981; color: #047857; }
+
+        .count-badge {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* Cartões */
+        .card {
+            background-color: #ffffff;
+            border-radius: 6px;
+            padding: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+        }
+
+        .card.editing {
+            border: 2px solid #f97316;
+        }
+
+        .card.done-card {
+            background-color: #f0fdf4;
+            border-color: #dcfce7;
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .tag-frontend { color: #2563eb; background: #eff6ff; }
+        .tag-backend { color: #d97706; background: #fffbebfb; }
+        .tag-db { color: #4f46e5; background: #eef2ff; }
+        .tag-devops { color: #059669; background: #ecfdf5; }
+
+        .editing-status {
+            color: #ea580c;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Banner WS Broadcast (Rodapé) */
+        .ws-broadcast {
+            background-color: #fef3c7;
+            color: #b45309;
+            font-size: 0.8rem;
+            padding: 8px 24px;
+            border-top: 1px solid #fde68a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ws-broadcast strong {
+            color: #d97706;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Topo -->
+<header>
+    <div class="logo-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M4 4h4v16H4V4zm6 0h4v10h-4V4zm6 0h4v6h-4V4z"/>
+        </svg>
+        <span id="roomTitle">KANBAN LIVE PRO — CARREGANDO...</span>
+    </div>
+    <div class="status-bar">
+        <div class="ws-status">
+            <span class="status-dot"></span> WS: CONECTADO
+        </div>
+        <div class="avatars">
+            <div class="avatar">CS</div>
+            <div class="avatar">AS</div>
+            <div class="avatar" style="background-color: #f97316;">BL</div>
+        </div>
+    </div>
+</header>
+
+<!-- Quadro de Colunas -->
+<main class="kanban-board">
+
+    <!-- A Fazer -->
+    <section class="column">
+        <div class="column-header col-todo">
+            <span>A FAZER</span>
+            <span class="count-badge">2</span>
+        </div>
+        <div class="cards-container">
+            <div class="card">
+                <div class="card-title">Criar Tela de Login</div>
+                <div class="card-footer">
+                    <span class="tag tag-frontend">Frontend</span>
+                    <span>Resp: Ana</span>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">Configurar CORS</div>
+                <div class="card-footer">
+                    <span class="tag tag-frontend">Backend</span>
+                    <span>Resp: Carlos</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Em Progresso -->
+    <section class="column">
+        <div class="column-header col-progress">
+            <span>EM PROGRESSO</span>
+            <span class="count-badge">1</span>
+        </div>
+        <div class="cards-container">
+            <div class="card editing">
+                <div class="card-title">API WebSocket Server</div>
+                <div class="card-footer">
+                    <span class="tag tag-backend">Backend</span>
+                    <span>Resp: Beatriz</span>
+                </div>
+                <div class="editing-status">
+                    ✏️ Beatriz está editando...
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Revisão -->
+    <section class="column">
+        <div class="column-header col-review">
+            <span>REVISÃO</span>
+            <span class="count-badge">1</span>
+        </div>
+        <div class="cards-container">
+            <div class="card">
+                <div class="card-title">Modelagem do Banco</div>
+                <div class="card-footer">
+                    <span class="tag tag-db">DB</span>
+                    <span>Resp: Ana</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Concluído -->
+    <section class="column">
+        <div class="column-header col-done">
+            <span>CONCLUÍDO</span>
+            <span class="count-badge">1</span>
+        </div>
+        <div class="cards-container">
+            <div class="card done-card">
+                <div class="card-title">Setup Inicial Repo</div>
+                <div class="card-footer">
+                    <span class="tag tag-devops">DevOps</span>
+                    <span style="color: #10b981; font-weight: 600;">09/Set</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- Rodapé do WebSocket -->
+<footer class="ws-broadcast">
+    <span>📡</span>
+    <div>
+        <strong>[WS Broadcast]</strong> <span id="broadcastMsg">Beatriz alterou o status do card "API WebSocket Server" para EM PROGRESSO.</span>
+    </div>
+</footer>
+
+<!-- Script de Validação de Acesso -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Pega o usuário e a sala que salvamos no localStorage nas telas anteriores
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        const salaAtiva = JSON.parse(localStorage.getItem('salaAtiva'));
+
+        // Validação: Se não tiver usuário ou sala, manda de volta pro Login
+        if (!usuarioLogado || !salaAtiva) {
+            alert('Acesso negado! Por favor faça login e entre em uma sala.');
+            window.location.href = '/login';
+            return;
+        }
+
+        // Atualiza o título com o código/nome da sala
+        document.getElementById('roomTitle').innerText = `KANBAN LIVE PRO — SPRINT ${salaAtiva.codigo}`;
+    });
+</script>
+
+</body>
+</html>
