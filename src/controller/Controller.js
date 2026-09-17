@@ -2,12 +2,12 @@ const path = require('path');
 
 // Renderiza a página de Login (index.html)
 exports.getLoginPage = (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'public', 'src', 'viewer', 'index.html'));
+    res.sendFile(path.join(__dirname, '..', 'view', 'index.html'));
 };
 
 // Renderiza a página de Criar Sala
 exports.getCreateRoomPage = (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'public', 'src', 'viewer', 'CreateRoom.html'));
+    res.sendFile(path.join(__dirname, '..', 'view', 'CreateRoom.html'));
 };
 
 // Processa a entrada na sala

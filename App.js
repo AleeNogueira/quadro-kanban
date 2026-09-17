@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const Router = require('./router/Router');
+const Router = require('./src/router/Router');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 // Middlewares
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public', 'src')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Registrar as Rotas da Aplicação
 app.use('/', Router);
