@@ -119,10 +119,10 @@
 </div>
 
 <script>
-    document.getElementById('formEntrarSala').addEventListener('submit', async (e) => {
+    document.getElementById('formJoinRoom').addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const codigo = document.getElementById('codigoSala').value.trim();
+        const codigo = document.getElementById('codigo').value.trim();
 
         try {
             const response = await fetch('/api/JoinRoom', {

@@ -1,5 +1,5 @@
 const path = require('path');
-const supabase = require('../config/supabase');
+const supabase = require('../config/supabase.js');
 
 //Renderizar a página de Criar usuario
 exports.getCreateUser = (req, res) => {
@@ -26,6 +26,11 @@ exports.getSalaPage = (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'view', 'Home.html'));
 }
 
+//Renderizar a página de logs
+exports.getLogsPage = (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'view', 'Logs.html'));
+}
+
 // Processa a criação de usuario
 exports.CreateUser = async (req, res) => {
     try {
@@ -34,7 +39,7 @@ exports.CreateUser = async (req, res) => {
         // Insere os dados na tabela do Supabase
         const { data: usuarios, error } = await supabase
             .from('usuario')
-            .insert([{ nome: nome, email: email, status_online: true }])
+            .insert([{ nome_completo: nome, email: email, status_online: true }])
             .select();
 
         if (error) {
@@ -59,6 +64,7 @@ exports.LoginUser = async (req, res) => {
             .eq('email', email);
 
         if (error) {
+            console.error('Erro na busca do Supabase:', error);
             return res.status(400).json({ sucesso: false, erro: error.message });
         }
 

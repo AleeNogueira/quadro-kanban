@@ -8,6 +8,7 @@ router.get('/LoginIn', Controller.getLoginPage);
 router.get('/JoinRoom', Controller.getJoinRoom);
 router.get('/CreateRoom', Controller.getCreateRoomPage);
 router.get('/Home',Controller.getSalaPage);
+router.get('/Logs',Controller.getLogsPage);
 
 // Rotas de Ação (POST)
 router.post('/api/CreateUser', Controller.CreateUser);

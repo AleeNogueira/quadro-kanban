@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Administração e Conexões WebSocket</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0f172a; color: #f8fafc; height: 100vh; display: flex; flex-direction: column; }
+
+        /* Header */
+        header {
+            background-color: #03254c;
+            color: #ffffff;
+            padding: 14px 24px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #1e293b;
+        }
+
+        .btn-back {
+            background: #1e293b;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        /* Container Principal dividindo a tela */
+        .dashboard-container {
+            display: flex;
+            flex: 1;
+            padding: 16px;
+            gap: 16px;
+            overflow: hidden;
+        }
+
+        /* Lado Esquerdo: Lista de Conexões e Métricas */
+        .left-panel {
+            width: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card-panel {
+            background: #ffffff;
+            color: #1e293b;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .panel-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #0d3b66;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .users-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 10px 12px;
+            border-radius: 6px;
+        }
+
+        .user-info { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.85rem; }
+        .user-tag { background: #e2e8f0; color: #64748b; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; }
+
+        .status-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-online { background-color: #dcfce7; color: #15803d; }
+        .status-offline { background-color: #fee2e2; color: #b91c1c; }
+
+        .metrics-card {
+            background-color: #bae6fd;
+            color: #0369a1;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Lado Direito: Terminal Console Live Log */
+        .console-panel {
+            flex: 1;
+            background-color: #050505;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #1e293b;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .console-header {
+            color: #00ff66;
+            font-size: 0.95rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .console-logs {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .log-line { display: flex; gap: 8px; word-break: break-all; }
+        .log-time { color: #64748b; }
+        .log-type-in { color: #00ff66; font-weight: bold; }
+        .log-type-out { color: #38bdf8; font-weight: bold; }
+        .log-type-err { color: #ef4444; font-weight: bold; }
+        .log-text { color: #f8fafc; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div>❖ PAINEL DE ADMINISTRAÇÃO E CONEXÕES WEBSOCKET</div>
+    <a href="/Home" class="btn-back">← Voltar ao Kanban</a>
+</header>
+
+<div class="dashboard-container">
+    <!-- LADO ESQUERDO: USUÁRIOS E MÉTRICAS -->
+    <div class="left-panel">
+        <div class="card-panel" style="flex: 1;">
+            <div class="panel-title">❖ USUÁRIOS ATIVOS NA SESSÃO (SOCKETS)</div>
+            <div class="users-list" id="usersList">
+                <!-- Preenchido dinamicamente pelo JS -->
+            </div>
+        </div>
+
+        <div class="metrics-card">
+            <div>📊 MÉTRICAS DO SERVIDOR WS</div>
+            <div style="margin-top: 4px;" id="metricsText">
+                Mensagens Processadas: <span id="msgCount">0</span> | Status: <span style="color:#15803d">Conectado</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- LADO DIREITO: TERMINAL CONSOLE -->
+    <div class="console-panel">
+        <div class="console-header">
+            💻 WEBSOCKET LIVE CONSOLE LOG
+        </div>
+        <div class="console-logs" id="consoleLogs">
+            <!-- Linhas do console adicionadas dinamicamente -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // Ajuste com a URL do seu backend WS
+    const WS_URL = 'ws://localhost:3000';
+    const ws = new WebSocket(WS_URL);
+
+    let messageCounter = 0;
+    const consoleLogs = document.getElementById('consoleLogs');
+    const usersList = document.getElementById('usersList');
+    const msgCount = document.getElementById('msgCount');
+
+    function formatTime() {
+        const now = new Date();
+        return now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+    }
+
+    function appendConsoleLog(type, message) {
+        messageCounter++;
+        msgCount.innerText = messageCounter;
+
+        const line = document.createElement('div');
+        line.className = 'log-line';
+
+        let typeClass = 'log-type-in';
+        if (type.includes('OUT') || type.includes('BROADCAST')) typeClass = 'log-type-out';
+        if (type.includes('CLOSE') || type.includes('ERR')) typeClass = 'log-type-err';
+
+        line.innerHTML = `
+                <span class="log-time">${formatTime()}</span>
+                <span class="${typeClass}">[${type}]</span>
+                <span class="log-text">${message}</span>
+            `;
+
+        consoleLogs.appendChild(line);
+        consoleLogs.scrollTop = consoleLogs.scrollHeight;
+    }
+
+    ws.onopen = () => {
+        appendConsoleLog('SYS', 'Conexão estabelecida com o servidor WebSocket.');
+
+        // Entra na sala 1 para receber os eventos gerais de monitoramento
+        ws.send(JSON.stringify({
+            type: 'JOIN_ROOM',
+            payload: {
+                usuario: { id_usuario: 0, nome_completo: 'Admin Monitor' },
+                sala: { id_quadro: 1 }
+            }
+        }));
+    };
+
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        const { type, payload } = data;
+
+        // Registra no terminal hacker
+        appendConsoleLog('IN', JSON.stringify(data));
+
+        // Atualiza a lista de usuários ativos na barra lateral
+        if (type === 'INITIAL_STATE' || type === 'USERS_UPDATE') {
+            const users = payload.users || [];
+            renderUsers(users);
+        }
+    };
+
+    ws.onclose = () => {
+        appendConsoleLog('CLOSE', 'Socket desconectado do servidor.');
+    };
+
+    function renderUsers(users) {
+        usersList.innerHTML = '';
+        users.forEach((u, index) => {
+            const item = document.createElement('div');
+            item.className = 'user-item';
+            item.innerHTML = `
+                    <div class="user-info">
+                        👤 ${u.nome_user || u.nome_completo}
+                        <span class="user-tag">ws_00${index + 1}</span>
+                    </div>
+                    <div class="status-badge status-online">
+                        ● ONLINE
+                    </div>
+                `;
+            usersList.appendChild(item);
+        });
+    }
+</script>
+</body>
+</html>

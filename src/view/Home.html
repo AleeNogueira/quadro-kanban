@@ -3,341 +3,690 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KANBAN LIVE PRO — SPRINT 24</title>
+    <title>KANBAN LIVE</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #f3f4f6; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        body {
-            background-color: #f3f4f6;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+        header { background-color: #0d3b66; color: #ffffff; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+        .logo-title { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; letter-spacing: 0.5px; }
+        .status-bar { display: flex; align-items: center; gap: 16px; }
+        .ws-status { font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.1); padding: 4px 10px; border-radius: 12px; }
+        .status-dot { width: 8px; height: 8px; background-color: #ef4444; border-radius: 50%; }
+        .status-dot.online { background-color: #10b981; }
+        .avatars { display: flex; gap: -4px; }
+        .avatar { width: 28px; height: 28px; border-radius: 50%; background-color: #4b5563; border: 2px solid #0d3b66; color: #fff; font-size: 0.7rem; font-weight: 600; display: flex; align-items: center; justify-content: center; margin-left: -6px; }
 
-        /* Navbar Topo */
-        header {
-            background-color: #0d3b66;
-            color: #ffffff;
-            padding: 12px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+        .kanban-board { flex: 1; display: flex; gap: 16px; padding: 20px 24px; overflow-x: auto; }
+        .column { background-color: #e5e7eb; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 12px; height: 100%; min-width: 260px; flex: 1; }
+        .column-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 2px solid #0d3b66; font-weight: 700; font-size: 0.85rem; color: #0d3b66; }
 
-        .logo-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            letter-spacing: 0.5px;
-        }
+        .cards-container { display: flex; flex-direction: column; gap: 10px; flex: 1; overflow-y: auto; }
+        .card { background-color: #ffffff; border-radius: 6px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 8px; position: relative; }
+        .card-title { font-size: 0.9rem; font-weight: 600; color: #1f2937; }
+        .card-desc { font-size: 0.78rem; color: #4b5563; line-height: 1.3; }
+        .card-footer { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: #6b7280; }
+        .tag { font-size: 0.7rem; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
+        .tag-alta, .tag-crítica { color: #dc2626; background: #fef2f2; }
+        .tag-média { color: #d97706; background: #fffbebfb; }
+        .tag-baixa { color: #059669; background: #ecfdf5; }
 
-        .status-bar {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
+        .ws-broadcast { background-color: #fef3c7; color: #b45309; font-size: 0.8rem; padding: 8px 24px; border-top: 1px solid #fde68a; display: flex; align-items: center; gap: 8px; }
 
-        .ws-status {
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 4px 10px;
-            border-radius: 12px;
-        }
+        /* Botão Flutuante (FAB) */
+        .fab { position: fixed; bottom: 32px; right: 32px; width: 56px; height: 56px; border-radius: 50%; background-color: #0d3b66; color: #ffffff; font-size: 28px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; transition: transform 0.2s, background-color 0.2s; z-index: 99; }
+        .fab:hover { transform: scale(1.08); background-color: #1d4ed8; }
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #10b981;
-            border-radius: 50%;
-        }
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-overlay.active { display: flex; }
+        .modal-card { background: #ffffff; border-radius: 10px; width: 100%; max-width: 420px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: fadeIn 0.2s ease-out; }
 
-        .avatars {
-            display: flex;
-            gap: -4px;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background-color: #4b5563;
-            border: 2px solid #0d3b66;
-            color: #fff;
-            font-size: 0.7rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-left: -6px;
-        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .modal-header h3 { color: #0d3b66; font-size: 1.2rem; }
+        .btn-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #6b7280; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+        .form-group label { font-size: 0.82rem; font-weight: 600; color: #374151; }
+        .form-group input, .form-group textarea, .form-group select { padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.9rem; outline: none; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: #0d3b66; box-shadow: 0 0 0 2px rgba(13, 59, 102, 0.15); }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        .btn-cancel { background: #e5e7eb; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; color: #374151; font-weight: 600; }
+        .btn-submit { background: #0d3b66; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; color: #ffffff; font-weight: 600; }
+        .btn-submit:hover { background-color: #1d4ed8; }
 
-        /* Container do Quadro */
-        .kanban-board {
-            flex: 1;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            padding: 20px 24px;
-            overflow-x: auto;
-        }
+        .card-action-badge { font-size: 0.68rem; font-weight: 700; color: #1d4ed8; background-color: #eff6ff; border: 1px solid #bfdbfe; padding: 2px 6px; border-radius: 4px; display: none; /* Fica oculto até receber uma ação */ animation: pulse 1s infinite alternate; }
+        @keyframes pulse { from { opacity: 0.6; } to { opacity: 1; } }
 
-        /* Colunas */
-        .column {
-            background-color: #e5e7eb;
-            border-radius: 8px;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            height: 100%;
-        }
+        .card-info-btn { position: absolute; top: 8px; right: 8px; background: transparent; border: none; color: #9ca3af; cursor: pointer; font-size: 14px; padding: 2px 6px; border-radius: 4px; transition: background-color 0.2s, color 0.2s; }
+        .card-info-btn:hover { background-color: #f3f4f6; color: #1f2937; }
+        /* Estilo do botão de Excluir no Modal */
+        .btn-delete { background-color: #ef4444; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; color: #ffffff; font-weight: 600; margin-right: auto; /* Empurra o botão para a esquerda do rodapé do modal */ }
+        .btn-delete:hover { background-color: #dc2626; }
 
-        .column-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 8px;
-            border-bottom: 2px solid transparent;
-            font-weight: 700;
-            font-size: 0.85rem;
-        }
+        .card.locked { opacity: 0.6; pointer-events: none; /* Impede novos cliques ou arrastes por outros usuários */ border: 2px dashed #f59e0b !important; background-color: #fffbeb; }
+        .card.locked .card-info-btn { display: none; }
 
-        .col-todo { border-color: #ef4444; color: #b91c1c; }
-        .col-progress { border-color: #f97316; color: #c2410c; }
-        .col-review { border-color: #1d4ed8; color: #1e40af; }
-        .col-done { border-color: #10b981; color: #047857; }
+        .main-wrapper { display: flex; flex: 1; overflow: hidden; }
 
-        .count-badge {
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
+        /* Feed Lateral de Atividades */
+        .activity-feed { width: 300px; background-color: #ffffff; border-left: 1px solid #e5e7eb; display: flex; flex-direction: column; box-shadow: -2px 0 6px rgba(0,0,0,0.03); }
+        .feed-header { padding: 14px 16px; font-weight: 700; font-size: 0.9rem; color: #0d3b66; border-bottom: 1px solid #e5e7eb; }
+        .feed-list { flex: 1; overflow-y: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+        .feed-item { font-size: 0.78rem; color: #374151; padding: 8px 10px; background-color: #f9fafb; border-left: 3px solid #0d3b66; border-radius: 4px; }
+        .feed-time { font-size: 0.7rem; color: #9ca3af; font-weight: 600; margin-bottom: 2px; }
 
-        .cards-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        /* Cartões */
-        .card {
-            background-color: #ffffff;
-            border-radius: 6px;
-            padding: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            border: 1px solid #e5e7eb;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            position: relative;
-        }
-
-        .card.editing {
-            border: 2px solid #f97316;
-        }
-
-        .card.done-card {
-            background-color: #f0fdf4;
-            border-color: #dcfce7;
-        }
-
-        .card-title {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #1f2937;
-        }
-
-        .card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.75rem;
-            color: #6b7280;
-        }
-
-        .tag {
-            font-size: 0.7rem;
-            font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        .tag-frontend { color: #2563eb; background: #eff6ff; }
-        .tag-backend { color: #d97706; background: #fffbebfb; }
-        .tag-db { color: #4f46e5; background: #eef2ff; }
-        .tag-devops { color: #059669; background: #ecfdf5; }
-
-        .editing-status {
-            color: #ea580c;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        /* Banner WS Broadcast (Rodapé) */
-        .ws-broadcast {
-            background-color: #fef3c7;
-            color: #b45309;
-            font-size: 0.8rem;
-            padding: 8px 24px;
-            border-top: 1px solid #fde68a;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .ws-broadcast strong {
-            color: #d97706;
-        }
+        .btn-logs-nav { display: inline-flex; align-items: center; gap: 6px; background-color: #1e293b; color: #00ff66; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; border: 1px solid #334155; transition: background 0.2s; }
+        .btn-logs-nav:hover { background-color: #334155; }
     </style>
 </head>
 <body>
 
-<!-- Topo -->
 <header>
     <div class="logo-title">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M4 4h4v16H4V4zm6 0h4v10h-4V4zm6 0h4v6h-4V4z"/>
-        </svg>
-        <span id="roomTitle">KANBAN LIVE PRO — CARREGANDO...</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h4v16H4V4zm6 0h4v10h-4V4zm6 0h4v6h-4V4z"/></svg>
+        <span id="roomTitle">KANBAN LIVE</span>
     </div>
+    <a href="/Logs" class="btn-logs-nav">
+        📋 Logs WS
+    </a>
     <div class="status-bar">
         <div class="ws-status">
-            <span class="status-dot"></span> WS: CONECTADO
+            <span id="statusDot" class="status-dot"></span> <span id="statusText">WS: DESCONECTADO</span>
         </div>
-        <div class="avatars">
-            <div class="avatar">CS</div>
-            <div class="avatar">AS</div>
-            <div class="avatar" style="background-color: #f97316;">BL</div>
-        </div>
+        <div class="avatars" id="avatarsContainer"></div>
     </div>
 </header>
 
-<!-- Quadro de Colunas -->
-<main class="kanban-board">
+<div class="main-wrapper">
+    <main class="kanban-board" id="kanbanBoard">
+        <!-- As colunas serão injetadas dinamicamente via JS -->
+    </main>
 
-    <!-- A Fazer -->
-    <section class="column">
-        <div class="column-header col-todo">
-            <span>A FAZER</span>
-            <span class="count-badge">2</span>
-        </div>
-        <div class="cards-container">
-            <div class="card">
-                <div class="card-title">Criar Tela de Login</div>
-                <div class="card-footer">
-                    <span class="tag tag-frontend">Frontend</span>
-                    <span>Resp: Ana</span>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-title">Configurar CORS</div>
-                <div class="card-footer">
-                    <span class="tag tag-frontend">Backend</span>
-                    <span>Resp: Carlos</span>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Feed Lateral de Histórico -->
+    <aside class="activity-feed">
+        <div class="feed-header">📋 Histórico de Atividades</div>
+        <div class="feed-list" id="activityFeedList"></div>
+    </aside>
+</div>
 
-    <!-- Em Progresso -->
-    <section class="column">
-        <div class="column-header col-progress">
-            <span>EM PROGRESSO</span>
-            <span class="count-badge">1</span>
-        </div>
-        <div class="cards-container">
-            <div class="card editing">
-                <div class="card-title">API WebSocket Server</div>
-                <div class="card-footer">
-                    <span class="tag tag-backend">Backend</span>
-                    <span>Resp: Beatriz</span>
-                </div>
-                <div class="editing-status">
-                    ✏️ Beatriz está editando...
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Revisão -->
-    <section class="column">
-        <div class="column-header col-review">
-            <span>REVISÃO</span>
-            <span class="count-badge">1</span>
-        </div>
-        <div class="cards-container">
-            <div class="card">
-                <div class="card-title">Modelagem do Banco</div>
-                <div class="card-footer">
-                    <span class="tag tag-db">DB</span>
-                    <span>Resp: Ana</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Concluído -->
-    <section class="column">
-        <div class="column-header col-done">
-            <span>CONCLUÍDO</span>
-            <span class="count-badge">1</span>
-        </div>
-        <div class="cards-container">
-            <div class="card done-card">
-                <div class="card-title">Setup Inicial Repo</div>
-                <div class="card-footer">
-                    <span class="tag tag-devops">DevOps</span>
-                    <span style="color: #10b981; font-weight: 600;">09/Set</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-</main>
-
-<!-- Rodapé do WebSocket -->
 <footer class="ws-broadcast">
     <span>📡</span>
-    <div>
-        <strong>[WS Broadcast]</strong> <span id="broadcastMsg">Beatriz alterou o status do card "API WebSocket Server" para EM PROGRESSO.</span>
-    </div>
+    <div><strong>[WS Broadcast]</strong> <span id="broadcastMsg">Aguardando eventos da sala...</span></div>
 </footer>
 
-<!-- Script de Validação de Acesso -->
+<button class="fab" id="btnOpenModal" title="Criar Nova Tarefa">+</button>
+
+<div class="modal-overlay" id="taskModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Nova Tarefa</h3>
+            <button class="btn-close" id="btnCloseModal">&times;</button>
+        </div>
+
+        <form id="formCreateTask">
+            <div class="form-group">
+                <label for="taskTitle">Título *</label>
+                <input type="text" id="taskTitle" placeholder="Ex: Configurar WebSockets" required>
+            </div>
+
+            <div class="form-group">
+                <label for="taskDesc">Descrição</label>
+                <textarea id="taskDesc" rows="3" placeholder="Detalhes da tarefa..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="taskPriority">Prioridade</label>
+                <select id="taskPriority">
+                    <option value="Baixa">Baixa</option>
+                    <option value="Média" selected>Média</option>
+                    <option value="Alta">Alta</option>
+                    <option value="Crítica">Crítica</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="taskResp">Responsável</label>
+                <select id="taskResp">
+                    <option value="">Selecione um responsável</option>
+                </select>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" id="btnCancelModal">Cancelar</button>
+                <button type="submit" class="btn-submit">Criar Tarefa</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para Detalhar, Editar e Excluir Tarefa -->
+<div class="modal-overlay" id="editTaskModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Detalhes da Tarefa</h3>
+            <button class="btn-close" id="btnCloseEditModal">&times;</button>
+        </div>
+
+        <form id="formEditTask">
+            <input type="hidden" id="editTaskId">
+
+            <div class="form-group">
+                <label for="editTaskTitle">Título *</label>
+                <input type="text" id="editTaskTitle" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editTaskDesc">Descrição</label>
+                <textarea id="editTaskDesc" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="editTaskPriority">Prioridade</label>
+                <select id="editTaskPriority">
+                    <option value="Baixa">Baixa</option>
+                    <option value="Média">Média</option>
+                    <option value="Alta">Alta</option>
+                    <option value="Crítica">Crítica</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="editTaskResp">Responsável</label>
+                <select id="editTaskResp">
+                    <option value="">Selecione um responsável</option>
+                </select>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-delete" id="btnDeleteTask">Excluir Tarefa</button>
+                <button type="button" class="btn-cancel" id="btnCancelEditModal">Cancelar</button>
+                <button type="submit" class="btn-submit">Salvar Alterações</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // Pega o usuário e a sala que salvamos no localStorage nas telas anteriores
         const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
         const salaAtiva = JSON.parse(localStorage.getItem('salaAtiva'));
 
-        // Validação: Se não tiver usuário ou sala, manda de volta pro Login
         if (!usuarioLogado || !salaAtiva) {
             alert('Acesso negado! Por favor faça login e entre em uma sala.');
             window.location.href = '/login';
             return;
         }
 
-        // Atualiza o título com o código/nome da sala
-        document.getElementById('roomTitle').innerText = `KANBAN LIVE PRO — SPRINT ${salaAtiva.codigo}`;
+        usuarioLogado.id_quadro = salaAtiva.id_quadro || salaAtiva.id;
+        document.getElementById('roomTitle').innerText = `KANBAN LIVE — ${salaAtiva.nome_projeto || salaAtiva.codigo}`;
+
+        // Variable global para armazenar o ID da primeira coluna cadastrada
+        let primeiraColunaId = null;
+
+        // --- CONEXÃO WEBSOCKET ---
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const broadcastMsg = document.getElementById('broadcastMsg');
+
+        ws.onopen = () => {
+            statusDot.classList.add('online');
+            statusText.innerText = 'WS: CONECTADO';
+            ws.send(JSON.stringify({ type: 'JOIN_ROOM', payload: { usuario: usuarioLogado, sala: salaAtiva }}));
+        };
+
+        ws.onclose = () => {
+            statusDot.classList.remove('online');
+            statusText.innerText = 'WS: DESCONECTADO';
+        };
+
+        ws.onmessage = (event) => {
+            const { type, payload } = JSON.parse(event.data);
+
+            if (type === 'INITIAL_STATE') {
+                renderBoard(payload.columns);
+                renderUsers(payload.users);
+
+                // Renderiza o histórico recuperado do banco
+                if (Array.isArray(payload.logs)) {
+                    document.getElementById('activityFeedList').innerHTML = '';
+                    payload.logs.reverse().forEach(log => appendLogItem(log));
+                }
+            }
+            if (type === 'NEW_LOG') {
+                appendLogItem(payload);
+            }
+            if (type === 'USERS_UPDATE') {
+                renderUsers(payload.users);
+                if (payload.msg) broadcastMsg.innerText = payload.msg;
+            }
+            if (type === 'TASK_CREATED') {
+                addTaskToDOM(payload.task);
+                const titulo = payload.task.titulo || payload.task.title;
+                broadcastMsg.innerText = `${payload.user} criou a tarefa "${titulo}"`;
+            }
+            if (type === 'CARD_MOVED') {
+                const { id_tarefa, id_coluna, user } = payload;
+
+                // Procura o elemento do cartão na página
+                const card = document.querySelector(`.card[data-id="${id_tarefa}"]`);
+                const novaColunaContainer = document.getElementById(`col-${id_coluna}`);
+
+                if (card && novaColunaContainer) {
+                    novaColunaContainer.appendChild(card); // Move o cartão na tela dos outros
+                }
+
+                removeCardActionBadge(id_tarefa);
+
+                if (user) {
+                    broadcastMsg.innerText = `${user} moveu um cartão de coluna.`;
+                }
+            }
+            if (type === 'TASK_MOVING') {
+                const { id_tarefa, user } = payload;
+
+                // Exibe a tag MOVE_TASK na tela de todos os colegas conectados no mesmo instante
+                triggerCardActionBadge(id_tarefa, 'MOVE_TASK');
+                lockCard(id_tarefa, false); // Trava o card na tela dos colegas
+
+                if (user) {
+                    broadcastMsg.innerText = `[Bloqueado] ${user} está arrastando uma tarefa...`;
+                }
+            }
+            if (type === 'TASK_STOPPED_MOVING') {
+                const { id_tarefa } = payload;
+                // Remove a badge assim que ele soltar
+                removeCardActionBadge(id_tarefa);
+                unlockCard(id_tarefa);// Destrava o card
+            }
+            if (type === 'TASK_DELETED') {
+                const { id_tarefa, user } = payload;
+
+                // Remove o cartão do DOM instantaneamente
+                const card = document.querySelector(`.card[data-id="${id_tarefa}"]`);
+                if (card) {
+                    card.remove();
+                }
+
+                if (user) {
+                    broadcastMsg.innerText = `${user} excluiu uma tarefa.`;
+                }
+            }
+            if (type === 'TASK_UPDATED') {
+                const { task, user } = payload;
+                const idTarefa = task.id_tarefa;
+
+                // Atualiza o cartão existente removendo e reinserindo com os dados novos
+                const cardExistente = document.querySelector(`.card[data-id="${idTarefa}"]`);
+                if (cardExistente) {
+                    const idColuna = task.id_coluna;
+                    cardExistente.remove();
+                    addTaskToDOM(task, idColuna);
+                    triggerCardActionBadge(idTarefa, 'EDIT_TASK');
+                }
+
+                removeCardActionBadge(idTarefa);
+
+                if (user) {
+                    broadcastMsg.innerText = `${user} atualizou a tarefa "${task.titulo}".`;
+                }
+            }
+            if (type === 'TASK_EDITING') {
+                const { id_tarefa, user } = payload;
+
+                // Exibe a badge no cartão para todos os usuários online
+                triggerCardActionBadge(id_tarefa, 'EDIT_TASK');
+                lockCard(id_tarefa, false); // Trava o card na tela dos colegas
+
+                if (user) {
+                    broadcastMsg.innerText = `[Bloqueado] ${user} está editando uma tarefa...`;
+                }
+            }
+            if (type === 'TASK_STOPPED_EDITING') {
+                const { id_tarefa } = payload;
+                removeCardActionBadge(id_tarefa);
+                unlockCard(id_tarefa);
+            }
+            if (type === 'CARD_MOVED' || type === 'TASK_UPDATED') {
+                // Garante o desbloqueio ao finalizar qualquer ação
+                unlockCard(payload.id_tarefa || payload.task?.id_tarefa);
+            }
+        };
+
+        // --- MANIPULAÇÃO DO DOM ---
+        function renderBoard(columnsData) {
+            const board = document.getElementById('kanbanBoard');
+            if (!board) return;
+
+            board.innerHTML = '';
+
+            if (Array.isArray(columnsData) && columnsData.length > 0) {
+                // Salva o ID da primeira coluna encontrada para usar como padrão no formulário
+                primeiraColunaId = columnsData[0].id_coluna;
+
+                columnsData.forEach(col => {
+                    const section = document.createElement('section');
+                    section.className = 'column';
+
+                    section.innerHTML = `
+                        <div class="column-header">
+                            <span>${(col.nome_coluna || 'COLUNA').toUpperCase()}</span>
+                        </div>
+                        <div class="cards-container" id="col-${col.id_coluna}"></div>
+                    `;
+
+                    const cardsContainer = section.querySelector('.cards-container');
+
+                    // Permite soltar elementos sobre o container
+                    cardsContainer.ondragover = (e) => {
+                        e.preventDefault();
+                    };
+
+                    // Evento dissimulado quando o cartão é solto na coluna
+                    cardsContainer.ondrop = (e) => {
+                        e.preventDefault();
+                        const idTarefa = e.dataTransfer.getData('text/plain');
+                        const idNovaColuna = col.id_coluna;
+
+                        // Move visualmente de imediato (UX mais fluida)
+                        const cardElement = document.querySelector(`.card[data-id="${idTarefa}"]`);
+                        if (cardElement) {
+                            cardsContainer.appendChild(cardElement);
+                        }
+
+                        // Dispara o evento de movimento via WebSocket
+                        ws.send(JSON.stringify({
+                            type: 'MOVE_TASK',
+                            payload: {
+                                id_tarefa: Number(idTarefa),
+                                id_coluna: Number(idNovaColuna)
+                            }
+                        }));
+                    };
+
+                    board.appendChild(section);
+
+                    const tarefas = col.cartao_tarefa || col.tarefas || [];
+                    tarefas.forEach(task => addTaskToDOM(task, col.id_coluna));
+                });
+            }
+        }
+
+        function triggerCardActionBadge(idTarefa, actionName) {
+            const badge = document.getElementById(`badge-${idTarefa}`);
+            if (badge) {
+                badge.innerText = actionName;
+                badge.style.display = 'inline-block';
+            }
+        }
+        function removeCardActionBadge(idTarefa) {
+            const badge = document.getElementById(`badge-${idTarefa}`);
+            if (badge) {
+                if (badge.dataset.timeoutId) {
+                    clearTimeout(Number(badge.dataset.timeoutId));
+                }
+                badge.style.display = 'none';
+                badge.innerText = '';
+            }
+        }
+
+        function addTaskToDOM(task, idColunaExplicit) {
+            const idTarefa = task.id_tarefa || task.id;
+            const titulo = task.titulo || task.title;
+            const descricao = task.descricao || '';
+            const prioridade = task.prioridade || 'Média';
+            const idResp = task.id_usuario_responsavel || task.usuario?.id_usuario;
+            const responsavel = task.usuario?.nome_completo || task.resp || 'Sem Resp.';
+            const idColuna = task.id_coluna || task.coluna?.id_coluna || idColunaExplicit || primeiraColunaId;
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.setAttribute('draggable', 'true'); // Torna o cartão arrastável
+            card.dataset.id = idTarefa;            // Guarda o ID da tarefa no elemento HTML
+
+            // Armazena dados no Dataset para facilitar a edição no Modal
+            card.dataset.titulo = titulo;
+            card.dataset.descricao = descricao;
+            card.dataset.prioridade = prioridade;
+            card.dataset.idResp = idResp || '';
+
+            // Evento quando o usuário começa a arrastar o cartão
+            card.ondragstart = (e) => {
+                e.dataTransfer.setData('text/plain', idTarefa);
+                card.classList.add('dragging');
+                // Exibe "MOVE_TASK" instantaneamente na tela do próprio usuário que está arrastando
+                triggerCardActionBadge(idTarefa, 'MOVE_TASK');
+                // Notifica instantaneamente o servidor que o movimento COMEÇOU
+                ws.send(JSON.stringify({
+                    type: 'START_MOVE_TASK',
+                    payload: { id_tarefa: Number(idTarefa) }
+                }));
+            };
+
+            card.ondragend = () => {
+                card.classList.remove('dragging');
+                // Desliga a badge localmente
+                removeCardActionBadge(idTarefa);
+                // Avisa a todos que PAROU de mover (caso solte fora de uma coluna válida)
+                ws.send(JSON.stringify({
+                    type: 'STOP_MOVE_TASK',
+                    payload: { id_tarefa: Number(idTarefa) }
+                }));
+            };
+
+            const prioClass = `tag-${prioridade.toLowerCase()}`;
+
+            card.innerHTML = `
+                <button class="card-info-btn" title="Detalhes/Editar" onclick="openEditModal(${idTarefa})">⚙️</button>
+                <div class="card-title" style="padding-right: 20px;">${titulo}</div>
+                ${descricao ? `<div class="card-desc">${descricao}</div>` : ''}
+                <div class="card-footer">
+                    <span class="tag ${prioClass}">${prioridade}</span>
+                    <span class="card-action-badge" id="badge-${idTarefa}"></span>
+                    <span>Resp: ${responsavel}</span>
+                </div>
+            `;
+
+            // Encontra a coluna correspondente no DOM (ex: id="col-12") ou joga no primeiro container encontrado
+            const col = document.getElementById(`col-${idColuna}`) || document.querySelector('.cards-container');
+            if (col) col.appendChild(card);
+        }
+
+        function appendLogItem(log) {
+            const list = document.getElementById('activityFeedList');
+            if (!list) return;
+
+            const hora = new Date(log.timestamp_evento).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            const item = document.createElement('div');
+            item.className = 'feed-item';
+            item.innerHTML = `
+        <div class="feed-time">${hora}</div>
+        <div>${log.detalhes_payload}</div>
+    `;
+
+            // Insere o log mais recente no topo
+            list.insertBefore(item, list.firstChild);
+        }
+
+        function renderUsers(users) {
+            const userList = Array.isArray(users) ? users : [];
+
+            const container = document.getElementById('avatarsContainer');
+            if (container) {
+                container.innerHTML = userList.map(u => {
+                    const nome = u?.nome_user || u?.nome || u?.nome_completo || 'Usuário';
+                    const avatar = u?.avatar || nome.substring(0, 2).toUpperCase();
+                    return `<div class="avatar" title="${nome}">${avatar}</div>`;
+                }).join('');
+            }
+
+            const selectResp = document.getElementById('taskResp');
+            if (selectResp) {
+                selectResp.innerHTML = '<option value="">Selecione um responsável</option>';
+
+                userList.forEach(u => {
+                    if (!u) return;
+
+                    const idUsuario = u.id_user || u.id || u.id_usuario;
+                    const nomeUsuario = u.nome_user || u.nome || u.nome_completo;
+
+                    if (idUsuario) {
+                        const option = document.createElement('option');
+                        option.value = idUsuario;
+                        option.textContent = nomeUsuario || `Usuário (${idUsuario})`;
+                        selectResp.appendChild(option);
+                    }
+                });
+            }
+        }
+
+        function lockCard(idTarefa, isCurrentOwner = false) {
+            const card = document.querySelector(`.card[data-id="${idTarefa}"]`);
+            if (!card) return;
+
+            // Se o evento não veio do próprio usuário que está mexendo, bloqueia o cartão na tela dos outros
+            if (!isCurrentOwner) {
+                card.classList.add('locked');
+                card.setAttribute('draggable', 'false');
+            }
+        }
+
+        function unlockCard(idTarefa) {
+            const card = document.querySelector(`.card[data-id="${idTarefa}"]`);
+            if (!card) return;
+
+            card.classList.remove('locked');
+            card.setAttribute('draggable', 'true');
+        }
+
+        window.openEditModal = function(idTarefa) {
+            const card = document.querySelector(`.card[data-id="${idTarefa}"]`);
+            if (!card) return;
+
+            document.getElementById('editTaskId').value = idTarefa;
+            document.getElementById('editTaskTitle').value = card.dataset.titulo || '';
+            document.getElementById('editTaskDesc').value = card.dataset.descricao || '';
+            document.getElementById('editTaskPriority').value = card.dataset.prioridade || 'Média';
+
+            // Clona as opções de responsáveis do select principal para o select do modal de edição
+            const selectOriginal = document.getElementById('taskResp');
+            const selectEdit = document.getElementById('editTaskResp');
+            if (selectOriginal && selectEdit) {
+                selectEdit.innerHTML = selectOriginal.innerHTML;
+                selectEdit.value = card.dataset.idResp || '';
+            }
+
+            document.getElementById('editTaskModal').classList.add('active');
+
+            triggerCardActionBadge(idTarefa, 'EDIT_TASK');
+
+            ws.send(JSON.stringify({
+                type: 'START_EDIT_TASK',
+                payload: { id_tarefa: Number(idTarefa) }
+            }));
+        };
+
+        // --- EVENTOS DO MODAL ---
+        const modal = document.getElementById('taskModal');
+        const formTask = document.getElementById('formCreateTask');
+        const btnCancelModal = document.getElementById('btnCancelModal');
+        const editModal = document.getElementById('editTaskModal');
+        const closeEditModal = () => {
+            const id_tarefa = Number(document.getElementById('editTaskId').value);
+
+            document.getElementById('editTaskModal').classList.remove('active');
+
+            if (id_tarefa) {
+                // Remove a badge localmente
+                removeCardActionBadge(id_tarefa);
+
+                // Notifica a sala que parou de editar
+                ws.send(JSON.stringify({
+                    type: 'STOP_EDIT_TASK',
+                    payload: { id_tarefa }
+                }));
+            }
+        };
+
+        document.getElementById('btnOpenModal').onclick = () => modal.classList.add('active');
+        document.getElementById('btnCloseModal').onclick = () => {
+            modal.classList.remove('active');
+            if (formTask) formTask.reset();
+        };
+        document.getElementById('btnCloseEditModal').onclick = closeEditModal;
+        document.getElementById('btnCancelEditModal').onclick = closeEditModal;
+        document.getElementById('formEditTask').onsubmit = (e) => {
+            e.preventDefault();
+            const id_tarefa = Number(document.getElementById('editTaskId').value);
+            const titulo = document.getElementById('editTaskTitle').value;
+            const descricao = document.getElementById('editTaskDesc').value;
+            const prioridade = document.getElementById('editTaskPriority').value;
+            const id_usuario_responsavel = document.getElementById('editTaskResp').value || null;
+
+            ws.send(JSON.stringify({
+                type: 'UPDATE_TASK',
+                payload: {
+                    id_tarefa,
+                    titulo,
+                    descricao,
+                    prioridade,
+                    id_usuario_responsavel
+                }
+            }));
+
+            closeEditModal();
+        };
+        document.getElementById('btnDeleteTask').onclick = () => {
+            const id_tarefa = Number(document.getElementById('editTaskId').value);
+
+            if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
+                ws.send(JSON.stringify({
+                    type: 'DELETE_TASK',
+                    payload: { id_tarefa }
+                }));
+                closeEditModal();
+            }
+        };
+
+        if (btnCancelModal) {
+            btnCancelModal.onclick = () => {
+                modal.classList.remove('active');
+                if (formTask) formTask.reset();
+            };
+        }
+
+        if (formTask) {
+            formTask.onsubmit = (e) => {
+                e.preventDefault();
+
+                const titulo = document.getElementById('taskTitle').value;
+                const descricao = document.getElementById('taskDesc').value;
+                const prioridade = document.getElementById('taskPriority').value;
+                const id_usuario_responsavel = document.getElementById('taskResp').value || null;
+
+                if (!titulo) return alert('Informe o título da tarefa!');
+
+                ws.send(JSON.stringify({
+                    type: 'CREATE_TASK',
+                    payload: {
+                        titulo,
+                        descricao,
+                        prioridade,
+                        id_usuario_responsavel,
+                        id_coluna: primeiraColunaId // Envia dinamicamente a ID da primeira coluna ativa
+                    }
+                }));
+
+                formTask.reset();
+                modal.classList.remove('active');
+            };
+        }
     });
 </script>
-
 </body>
 </html>
