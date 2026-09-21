@@ -104,10 +104,13 @@ exports.LoginUser = async (req, res) => {
 // Processa a entrada na sala
 exports.JoinRoom = async (req, res) => {
     try {
-        const { codigo } = req.body;
+        const { codigo, id_usuario } = req.body;
 
         if (!codigo) {
             return res.status(400).json({ sucesso: false, erro: 'Por favor, informe o código do quadro.' });
+        }
+        if (!id_usuario) {
+            return res.status(400).json({ sucesso: false, erro: 'ID do usuário é obrigatório.' });
         }
 
         // Busca no Supabase um quadro que tenha esse código exato
@@ -129,12 +132,66 @@ exports.JoinRoom = async (req, res) => {
         }
 
         const quadroEncontrado = quadros[0];
+        const idQuadro = quadroEncontrado.id_quadro;
+
+        // 2. VERIFICAÇÃO DE SEGURANÇA: Usuário está banido/bloqueado nesta sala?
+        const { data: bloqueado } = await supabase
+            .from('usuario_bloqueado_quadro')
+            .select('*')
+            .eq('id_usuario', Number(id_usuario))
+            .eq('id_quadro', Number(idQuadro))
+            .maybeSingle();
+
+        if (bloqueado) {
+            return res.status(403).json({
+                sucesso: false,
+                erro: 'Acesso negado: Você está bloqueado nesta sala pelo administrador.'
+            });
+        }
+
+        // 3. Consulta se já existe vínculo na tabela usuario_quadro
+        const { data: vinculo, error: errVinculo } = await supabase
+            .from('usuario_quadro')
+            .select('*')
+            .eq('id_usuario', Number(id_usuario))
+            .eq('id_quadro', Number(idQuadro))
+            .maybeSingle();
+
+        if (errVinculo) {
+            return res.status(400).json({ sucesso: false, erro: errVinculo.message });
+        }
+
+        // 4. Tratamento do Vínculo
+        if (!vinculo) {
+            // PRIMEIRO ACESSO: Cria a linha setando como membro comum
+            const { error: errInsert } = await supabase
+                .from('usuario_quadro')
+                .insert([{
+                    id_usuario: Number(id_usuario),
+                    id_quadro: Number(idQuadro),
+                    papel: 'membro',
+                    ativo: true
+                }]);
+
+            if (errInsert) {
+                return res.status(400).json({ sucesso: false, erro: errInsert.message });
+            }
+        } else if (!vinculo.ativo) {
+            // REATIVAÇÃO: Caso já tenha feito parte mas estivesse marcado como inativo
+            await supabase
+                .from('usuario_quadro')
+                .update({ ativo: true, data_saida: null })
+                .eq('id_usuario', Number(id_usuario))
+                .eq('id_quadro', Number(idQuadro));
+        }
 
         return res.status(200).json({
             sucesso: true,
             mensagem: 'Acesso permitido ao quadro!',
-            quadro: quadroEncontrado
+            quadro: quadroEncontrado,
+            papel: vinculo ? vinculo.papel : 'membro'
         });
+
     } catch (err) {
         return res.status(500).json({ sucesso: false, erro: err.message });
     }
@@ -143,21 +200,67 @@ exports.JoinRoom = async (req, res) => {
 // Processa a criação de uma nova sala
 exports.CreateRoom = async (req, res) => {
     try {
-        const {  codigo_sala, nome_sala, descricao  } = req.body;
+        const {  codigo_sala, nome_sala, colunas, id_usuario } = req.body;
+
+        // Validação básica do array de colunas
+        if (!colunas || !Array.isArray(colunas) || colunas.length < 3) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'A sala precisa ter pelo menos 3 colunas.'
+            });
+        }
 
         // Insere os dados na tabela do Supabase
         const { data : quadro, error } = await supabase
-            .from('quadro') // Nome da sua tabela no Supabase
-            .insert([{codigo_projeto: codigo_sala, nome_projeto: nome_sala, descricao: descricao  }])
+            .from('quadro')
+            .insert([{codigo_projeto: codigo_sala, nome_projeto: nome_sala}])
             .select();
 
         if (error) {
             return res.status(400).json({ sucesso: false, erro: error.message });
         }
 
-        const quadroLogado = quadro[0]
+        const quadroCriado = quadro[0];
 
-        return res.status(201).json({ sucesso: true, mensagem: 'Quadro criado com sucesso!', quadro: quadroLogado });
+        // 2. Se o id_usuario for enviado, vincula o criador como 'admin' na tabela usuario_quadro
+        if (id_usuario) {
+            const { error: errVinculo } = await supabase
+                .from('usuario_quadro')
+                .insert([{
+                    id_usuario: Number(id_usuario),
+                    id_quadro: quadroCriado.id_quadro,
+                    papel: 'admin',
+                    ativo: true
+                }]);
+
+            if (errVinculo) {
+                console.error('Erro ao vincular criador como admin:', errVinculo.message);
+            }
+        }
+
+        // 3. Prepara o array de colunas para inserir na tabela 'coluna'
+        const colunasParaInserir = colunas.map((col, index) => ({
+            id_quadro: quadroCriado.id_quadro,
+            nome_coluna: col.nome,
+            ordem_posicao: col.ordem || (index + 1)
+        }));
+
+        // Insere as colunas em lote no Supabase
+        const { data: colunasCriadas, error: errorColunas } = await supabase
+            .from('coluna')
+            .insert(colunasParaInserir)
+            .select();
+
+        if (errorColunas) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: 'Quadro criado, mas houve erro ao inserir as colunas: ' + errorColunas.message
+            });
+        }
+
+        const quadroLogado = quadroCriado
+
+        return res.status(201).json({ sucesso: true, mensagem: 'Quadro e colunas criados com sucesso!!', quadro: quadroLogado });
     } catch (err) {
         return res.status(500).json({ sucesso: false, erro: err.message });
     }

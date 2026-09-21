@@ -14,59 +14,166 @@
 
         body {
             background: linear-gradient(135deg, #0a192f, #1e3a8a);
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             color: #f8fafc;
+            padding: 20px;
         }
 
         .container {
             background-color: #0f172a;
-            padding: 40px 30px;
+            padding: 30px;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
             width: 100%;
-            max-width: 400px;
+            max-width: 650px;
             border: 1px solid #1e293b;
         }
 
         h2 {
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             color: #38bdf8;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-size: 14px;
             color: #94a3b8;
+            font-weight: 600;
         }
 
         input, textarea {
             width: 100%;
-            padding: 12px;
+            padding: 10px 12px;
             border-radius: 6px;
             border: 1px solid #334155;
             background-color: #1e293b;
             color: #f8fafc;
-            font-size: 15px;
+            font-size: 14px;
             outline: none;
             transition: border-color 0.3s;
         }
 
         textarea {
             resize: vertical;
-            min-height: 80px;
+            min-height: 60px;
         }
 
         input:focus, textarea:focus {
             border-color: #38bdf8;
+        }
+
+        /* --- SESSÃO DE COLUNAS (CONFORME RASCUNHO) --- */
+        .columns-section {
+            border: 1px solid #334155;
+            background-color: #162032;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+        }
+
+        .columns-container {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 8px 4px;
+            align-items: stretch;
+            min-height: 120px;
+        }
+
+        /* Card de Coluna */
+        .column-card {
+            background-color: #1e293b;
+            border: 1px solid #3b82f6;
+            border-radius: 6px;
+            padding: 8px;
+            width: 120px;
+            min-width: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            position: relative;
+            cursor: grab;
+            user-select: none;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .column-card:active {
+            cursor: grabbing;
+        }
+
+        .column-card.dragging {
+            opacity: 0.4;
+            border-style: dashed;
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 4px;
+        }
+
+        .btn-remove-col {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .btn-remove-col:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .column-card input {
+            font-size: 12px;
+            padding: 6px;
+            text-align: center;
+            background-color: #0f172a;
+            border: 1px solid #475569;
+            margin-top: 4px;
+        }
+
+        /* Card Botão (+) Adicionar Coluna */
+        .add-column-card {
+            background-color: transparent;
+            border: 2px dashed #475569;
+            border-radius: 6px;
+            width: 80px;
+            min-width: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+
+        .add-column-card:hover {
+            border-color: #38bdf8;
+            background-color: rgba(56, 189, 248, 0.05);
+        }
+
+        .add-column-card span {
+            font-size: 28px;
+            color: #38bdf8;
+            font-weight: bold;
         }
 
         .btn {
@@ -80,7 +187,7 @@
             font-weight: bold;
             cursor: pointer;
             transition: background-color 0.3s;
-            margin-top: 10px;
+            margin-top: 20px;
         }
 
         .btn:hover {
@@ -89,7 +196,7 @@
 
         .footer-link {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 16px;
             font-size: 14px;
             color: #94a3b8;
         }
@@ -109,10 +216,10 @@
 
 <div class="container">
     <h2>Criar Nova Sala</h2>
-    <form id="formCreateRoom" action="/api/CreateRoom" method="POST">
+    <form id="formCreateRoom">
         <div class="form-group">
             <label for="codigo_sala">Código da Sala *</label>
-            <input type="text" id="codigo_sala" name="codigo_sala" placeholder="Defina um código numerico" required>
+            <input type="text" id="codigo_sala" name="codigo_sala" placeholder="Defina um código numérico" required>
         </div>
 
         <div class="form-group">
@@ -120,9 +227,17 @@
             <input type="text" id="nome_sala" name="nome_sala" placeholder="Nome da sua sala" required>
         </div>
 
+        <!-- SESSÃO DAS COLUNAS (RASCUNHO) -->
         <div class="form-group">
-            <label for="descricao">Descrição (opcional)</label>
-            <textarea id="descricao" name="descricao" placeholder="Sobre o que é esta sala?"></textarea>
+            <label>Colunas da Sala (mínimo 3)*</label>
+            <div class="columns-section">
+                <div class="columns-container" id="columnsContainer">
+                    <!-- Colunas padrão são inseridas via JS -->
+                    <div class="add-column-card" id="btnAddColumn" onclick="addColumn()">
+                        <span>+</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <button type="submit" class="btn">Criar Sala</button>
@@ -134,12 +249,89 @@
 </div>
 
 <script>
+    const columnsContainer = document.getElementById('columnsContainer');
+    const btnAddColumn = document.getElementById('btnAddColumn');
+
+    // Nomes default iniciais
+    const defaultColumns = ["A Fazer", "Em Progresso", "Concluído"];
+
+    // Inicializa a tela com as 3 colunas default
+    window.addEventListener('DOMContentLoaded', () => {
+        defaultColumns.forEach(title => addColumn(title));
+    });
+
+    // Função para criar elemento de coluna
+    function addColumn(title = '') {
+        const card = document.createElement('div');
+        card.className = 'column-card';
+        card.draggable = true;
+
+        card.innerHTML = `
+            <div class="column-header">
+                <button type="button" class="btn-remove-col" onclick="removeColumn(this)">✕</button>
+            </div>
+            <input type="text" class="column-title-input" value="${title}" placeholder="Nome..." required />
+        `;
+
+        // Eventos Drag and Drop Nativo
+        card.addEventListener('dragstart', () => card.classList.add('dragging'));
+        card.addEventListener('dragend', () => card.classList.remove('dragging'));
+
+        // Insere o card antes do botão (+)
+        columnsContainer.insertBefore(card, btnAddColumn);
+    }
+
+    // Função para remover coluna
+    function removeColumn(btn) {
+        const card = btn.closest('.column-card');
+        card.remove();
+    }
+
+    // Lógica do Drag and Drop (reordenar na horizontal)
+    columnsContainer.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const draggingCard = document.querySelector('.dragging');
+        if (!draggingCard) return;
+
+        const siblings = [...columnsContainer.querySelectorAll('.column-card:not(.dragging)')];
+        const nextSibling = siblings.find(sibling => {
+            const box = sibling.getBoundingClientRect();
+            return e.clientX <= box.left + box.width / 2;
+        });
+
+        if (nextSibling) {
+            columnsContainer.insertBefore(draggingCard, nextSibling);
+        } else {
+            columnsContainer.insertBefore(draggingCard, btnAddColumn);
+        }
+    });
+
+    // Envio do formulário com validação das colunas
     document.getElementById('formCreateRoom').addEventListener('submit', async (e) => {
-        e.preventDefault(); // Impede o recarregamento da página
+        e.preventDefault();
 
         const codigo_sala = document.getElementById('codigo_sala').value;
         const nome_sala = document.getElementById('nome_sala').value;
-        const descricao = document.getElementById('descricao').value;
+        // 1. Faz o parse do localStorage para obter o objeto do usuário
+        const usuarioStorage = localStorage.getItem('usuarioLogado');
+        const usuarioLogado = usuarioStorage ? JSON.parse(usuarioStorage) : null;
+        // Extrai especificamente o id_usuario
+        const id_usuario = usuarioLogado?.id_usuario || usuarioLogado?.id;
+
+        // Captura todas as colunas na ordem visual atual
+        const columnInputs = document.querySelectorAll('.column-title-input');
+        const colunas = Array.from(columnInputs)
+            .map((input, index) => ({
+                nome: input.value.trim(),
+                ordem: index + 1
+            }))
+            .filter(col => col.nome !== '');
+
+        // Validação: Mínimo 3 colunas
+        if (colunas.length < 3) {
+            alert('A sala precisa ter no mínimo 3 colunas para ser criada!');
+            return;
+        }
 
         try {
             const response = await fetch('/api/CreateRoom', {
@@ -147,13 +339,18 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ codigo_sala, nome_sala, descricao })
+                body: JSON.stringify({
+                    codigo_sala,
+                    nome_sala,
+                    colunas,
+                    id_usuario
+                })
             });
 
             const resultado = await response.json();
 
             if (resultado.sucesso) {
-                localStorage.setItem('quadroLogado', JSON.stringify(resultado.quadro || { codigo_sala }));
+                localStorage.setItem('salaAtiva', JSON.stringify(resultado.quadro || { codigo_sala }));
                 alert('Sala cadastrada com sucesso!');
                 window.location.href = '/Home';
             } else {

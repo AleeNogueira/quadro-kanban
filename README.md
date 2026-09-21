@@ -37,10 +37,10 @@ editando campos de um cartão no modal, o cliente deve enviar o evento USER_TYPI
 devem visualizar o indicador em tempo real "[Em Edição] Maria Santos está alterando esta tarefa...".
 Prioridade: Média~~
 
-~~[RF-08] Feed Lateral de Histórico de Atividades: A aplicação front-end deve manter um painel de 
+[RF-08] Feed Lateral de Histórico de Atividades: A aplicação front-end deve manter um painel de 
 registro (Activity Log) que liste em tempo real com carimbo de hora cada ação realizada na sessão 
 (ex: "14:32 - Carlos moveu a tarefa #15 para EM PROGRESSO").
-Prioridade: Média~~
+Prioridade: Média
 
 # Dados para teste no banco
 
@@ -49,13 +49,10 @@ nome: tony
 email: tony@teste.com
 
 usuario 02
-nome: tony
-email: tony@teste.com
+nome: tonyTeste
+email: TonyTest@teste.com
 
 quadro
 codigo: 1234
-
-
-# Requisitos funcionais todos implentados
 
 # TO DO - Logs

@@ -113,6 +113,24 @@ function setupWebSocket(server) {
                             .eq('id_usuario', Number(idUsuario));
                     }
 
+                    let rolePerfil = 'membro';
+                    try {
+                        const { data: relacao, error: errPerfil} = await supabase
+                            .from('usuario_quadro')
+                            .select('*')
+                            .eq('id_usuario', Number(idUsuario))
+                            .eq('id_quadro', Number(idQuadro))
+                            .single(); // Retorna o objeto direto em vez de um Array
+
+                        if (errPerfil) {
+                            console.error('Erro na consulta usuario_quadro:', errPerfil);
+                        } else if (relacao) {
+                            rolePerfil = relacao.papel;
+                        }
+                    } catch (err) {
+                        console.error('Erro ao buscar perfil:', err);
+                    }
+
                     // 3. Busca no Supabase as colunas com suas respectivas tarefas
                     const { data: colunas, error: errCol } = await supabase
                         .from('coluna')
@@ -152,6 +170,7 @@ function setupWebSocket(server) {
                         payload: {
                             columns: colunas || [],
                             users: getOnlineUsers(currentRoom.id_room),
+                            perfil: rolePerfil,
                             logs: logs || []
                         }
                     }));
@@ -163,7 +182,16 @@ function setupWebSocket(server) {
                             users: getOnlineUsers(currentRoom.id_room),
                             msg: `${currentUser.nome_user} entrou no Kanban!`
                         }
+
                     });
+                    // 6. REGISTRA O LOG NO BANCO E TRANSMITE VIA BROADCAST
+                    await registrarEBroadcastLog(
+                        wss,
+                        currentRoom.id_room,
+                        idUsuario,
+                        'USER_JOINED',
+                        `${currentUser.nome_user} entrou na sala`
+                    );
                 }
 
                 if (type === 'CREATE_TASK') {

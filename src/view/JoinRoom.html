@@ -123,12 +123,22 @@
         e.preventDefault();
 
         const codigo = document.getElementById('codigo').value.trim();
+        // Obtém o usuário armazenado durante o login/cadastro
+        const usuarioStorage = localStorage.getItem('usuarioLogado');
+        const usuarioLogado = usuarioStorage ? JSON.parse(usuarioStorage) : null;
+        const id_usuario = usuarioLogado?.id_usuario || usuarioLogado?.id;
+
+        if (!id_usuario) {
+            alert('Sessão expirada ou usuário não identificado. Por favor, faça login novamente.');
+            window.location.href = '/LoginIn';
+            return;
+        }
 
         try {
             const response = await fetch('/api/JoinRoom', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ codigo })
+                body: JSON.stringify({ codigo, id_usuario })
             });
 
             const resultado = await response.json();
