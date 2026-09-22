@@ -68,6 +68,9 @@ function setupWebSocket(server) {
     wss.on('connection', (ws) => {
         let currentUser = null;
         let currentRoom = null;
+        let rolePerfil = 'membro';
+        let listaMembros = [];
+        let idsBloqueados = [];
 
         ws.on('message', async (message) => {
             try {
@@ -113,22 +116,48 @@ function setupWebSocket(server) {
                             .eq('id_usuario', Number(idUsuario));
                     }
 
-                    let rolePerfil = 'membro';
                     try {
                         const { data: relacao, error: errPerfil} = await supabase
                             .from('usuario_quadro')
-                            .select('*')
+                            .select('papel')
                             .eq('id_usuario', Number(idUsuario))
                             .eq('id_quadro', Number(idQuadro))
                             .single(); // Retorna o objeto direto em vez de um Array
 
-                        if (errPerfil) {
-                            console.error('Erro na consulta usuario_quadro:', errPerfil);
-                        } else if (relacao) {
+                        if (relacao) {
                             rolePerfil = relacao.papel;
                         }
+
+                        const { data: lista, error: errLista } = await supabase
+                            .from('usuario_quadro')
+                            .select(`
+                                id_usuario,
+                                papel,
+                                usuario:id_usuario (nome_completo)
+                            `)
+                            .eq('id_quadro', Number(idQuadro));
+
+                        if (errLista) {
+                            console.error('Erro ao buscar lista de membros:', errLista);
+                        } else if (lista) {
+                            // Formata os objetos para facilitar a leitura no frontend
+                            listaMembros = lista.map(item => ({
+                                id_usuario: item.id_usuario,
+                                papel: item.papel,
+                                nome: item.usuario?.nome_completo || 'Usuário Sem Nome'
+                            }));
+                        }
+
+                        const { data: bloqueadosData } = await supabase
+                            .from('usuario_bloqueado_quadro')
+                            .select('id_usuario')
+                            .eq('id_quadro', Number(idQuadro));
+
+                        if (bloqueadosData) {
+                            idsBloqueados = bloqueadosData.map(b => Number(b.id_usuario));
+                        }
                     } catch (err) {
-                        console.error('Erro ao buscar perfil:', err);
+                        console.error('Erro ao buscar dados do quadro:', err);
                     }
 
                     // 3. Busca no Supabase as colunas com suas respectivas tarefas
@@ -171,6 +200,8 @@ function setupWebSocket(server) {
                             columns: colunas || [],
                             users: getOnlineUsers(currentRoom.id_room),
                             perfil: rolePerfil,
+                            membros: listaMembros,
+                            bloqueados: idsBloqueados,
                             logs: logs || []
                         }
                     }));
@@ -476,6 +507,147 @@ function setupWebSocket(server) {
                     }
                 }
 
+                if (type === 'BLOQUEAR_USUARIO') {
+                    const idBloqueado = payload.id_usuario_bloqueado;
+                    const nomeBloqueado = payload.nome_usuario_bloqueado;
+                    const idBloqueador = currentUser.id_user; // ID do usuário admin logado na sessão do WS
+                    const idQuadroAtual = Number(currentRoom.id_room);
+
+                    try {
+                        // Insere o registro na tabela usuario_bloqueado_quadro
+                        const { error } = await supabase
+                            .from('usuario_bloqueado_quadro')
+                            .insert([
+                                {
+                                    id_usuario: idBloqueado,
+                                    id_quadro: idQuadroAtual,
+                                    id_usuario_bloqueador: idBloqueador,
+                                    data_bloqueio: new Date()
+                                }
+                            ]);
+
+                        const { data: bData } = await supabase
+                            .from('usuario_bloqueado_quadro')
+                            .select('id_usuario')
+                            .eq('id_quadro', Number(idQuadroAtual));
+
+                        const novosBloqueados = bData ? bData.map(b => Number(b.id_usuario)) : [];
+
+                        if (error) {
+                            console.error('Erro ao bloquear usuário:', error);
+                            ws.send(JSON.stringify({
+                                type: 'ERROR',
+                                payload: { msg: 'Erro ao tentar bloquear o usuário.' }
+                            }));
+                        } else {
+                            await supabase
+                                .from('usuario_quadro')
+                                .update({ ativo: false })
+                                .eq('id_usuario', idBloqueado)
+                                .eq('id_quadro', idQuadroAtual);
+
+                            //  FORÇA A DESCONEXÃO usando a lista 'state.users' existente
+                            state.users.forEach((user, clientWs) => {
+                                const clientRoom = state.room.get(clientWs);
+
+                                // Procura a conexão ativa do usuário bloqueado no mesmo quadro
+                                if (user && clientRoom && Number(user.id_user) === idBloqueado && clientRoom.id_room === idQuadroAtual) {
+                                    if (clientWs.readyState === WebSocket.OPEN) {
+                                        clientWs.send(JSON.stringify({
+                                            type: 'USER_BLOCKED_KICK',
+                                            payload: { msg: 'Você foi bloqueado neste quadro pelo administrador.' }
+                                        }));
+                                        clientWs.close(4001, 'Usuario Bloqueado');
+                                    }
+                                }
+                            });
+
+                            console.log(`Usuário ${idBloqueado} bloqueado e desconectado no quadro ${idQuadroAtual}`);
+
+                            broadcastRoom(wss, currentRoom.id_room, {
+                                type: 'USER_BLOCKED_STATUS_CHANGED',
+                                payload: {
+                                    users: getOnlineUsers(currentRoom.id_room),
+                                    bloqueados: novosBloqueados
+                                }
+                            });
+                            await registrarEBroadcastLog(
+                                wss, currentRoom.id_room, currentUser?.id_user, 'MEMBER_BLOCKED',
+                                `${currentUser.nome_user} bloqueou o usuario "${nomeBloqueado}"`
+                            );
+                        }
+
+                    } catch (err) {
+                        console.error('Erro no processo de bloqueio:', err);
+                    }
+                }
+                if (type === 'DESBLOQUEAR_USUARIO') {
+                    const idDesbloqueado = Number(payload.id_usuario_desbloqueado || payload.id_usuario_bloqueado);
+                    const nomeDesbloqueado = payload.nome_usuario_desbloqueado;
+                    const idQuadroAtual = Number(currentRoom.id_quadro || currentRoom?.id_room);
+
+                    if (!idDesbloqueado || !idQuadroAtual) {
+                        console.error('IDs inválidos para desbloqueio:', { idDesbloqueado, idQuadroAtual });
+                        return;
+                    }
+
+                    try {
+                        // 1. Remove do banco usuario_bloqueado_quadro
+                        const { error: errDelete } = await supabase
+                            .from('usuario_bloqueado_quadro')
+                            .delete()
+                            .eq('id_usuario', idDesbloqueado)
+                            .eq('id_quadro', idQuadroAtual);
+
+                        if (errDelete) {
+                            console.error('Erro Supabase ao deletar bloqueio:', errDelete);
+                            return;
+                        }
+
+                        // 2. Atualiza a flag de 'ativo' para true na tabela usuario_quadro
+                        const { error: errUpdate } = await supabase
+                            .from('usuario_quadro')
+                            .update({ ativo: true })
+                            .eq('id_usuario', idDesbloqueado)
+                            .eq('id_quadro', idQuadroAtual);
+
+                        if (errUpdate) {
+                            console.error('Erro Supabase ao ativar usuário no quadro:', errUpdate);
+                        }
+
+                        // 3. Busca lista atualizada de bloqueados da sala
+                        const { data: bData, error: errSelect } = await supabase
+                            .from('usuario_bloqueado_quadro')
+                            .select('id_usuario')
+                            .eq('id_quadro', idQuadroAtual);
+
+                        if (errSelect) {
+                            console.error('Erro Supabase ao listar bloqueados:', errSelect);
+                        }
+
+                        const novosBloqueados = bData ? bData.map(b => Number(b.id_usuario)) : [];
+
+                        // 4. Dispara a notificação para a sala via WebSocket
+                        const idSalaWS = currentRoom?.id_room || currentRoom?.id_quadro;
+
+                        broadcastRoom(wss, idSalaWS, {
+                            type: 'USER_BLOCKED_STATUS_CHANGED',
+                            payload: {
+                                users: getOnlineUsers(idSalaWS),
+                                bloqueados: novosBloqueados
+                            }
+                        });
+                        await registrarEBroadcastLog(
+                            wss, currentRoom.id_room, currentUser?.id_user, 'MEMBER_UNBLOCKED',
+                            `${currentUser.nome_user} desbloqueou o usuario "${nomeDesbloqueado}"`
+                        );
+
+                        console.log(`Usuário ${idDesbloqueado} desbloqueado com sucesso do quadro ${idQuadroAtual}`);
+
+                    } catch (err) {
+                        console.error('Erro fatal durante a operação de desbloqueio:', err);
+                    }
+                }
             } catch (err) {
                 console.error('Erro no processamento do WS:', err);
             }

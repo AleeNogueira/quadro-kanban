@@ -83,152 +83,45 @@
         .btn-logs-feed { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 16px; width: 28px; height: 28px; border-radius: 6px; background-color: #1e293b; border: 1px solid #334155; transition: background-color 0.2s, transform 0.2s; cursor: pointer; }
         .btn-logs-feed:hover { background-color: #334155; transform: rotate(45deg); }
 
-        .logs-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(4px);
-            z-index: 9999;
-            display: none; /* Inicia oculto */
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
+        .logs-modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); z-index: 9999; display: none; /* Inicia oculto */ align-items: center; justify-content: center; padding: 20px; }
 
-        .logs-modal-container {
-            background-color: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            width: 95vw;
-            max-width: 1200px;
-            height: 85vh;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-        }
+        .logs-modal-container { background-color: #0f172a; border: 1px solid #334155; border-radius: 12px; width: 95vw; max-width: 1200px; height: 85vh; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); overflow: hidden; }
 
         /* CABEÇALHO DO MODAL */
-        .logs-modal-header {
-            background-color: #03254c;
-            color: #ffffff;
-            padding: 14px 24px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #1e293b;
-        }
+        .logs-modal-header { background-color: #03254c; color: #ffffff; padding: 14px 24px; font-size: 1.1rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e293b; }
 
-        .btn-close-modal {
-            background: transparent;
-            border: none;
-            color: #94a3b8;
-            font-size: 1.8rem;
-            cursor: pointer;
-            line-height: 1;
-            transition: color 0.2s;
-        }
+        .btn-close-modal { background: transparent; border: none; color: #94a3b8; font-size: 1.8rem; cursor: pointer; line-height: 1; transition: color 0.2s; }
 
-        .btn-close-modal:hover {
-            color: #ef4444;
-        }
+        .btn-close-modal:hover { color: #ef4444; }
 
         /* CONTAINER DO DASHBOARD */
-        .dashboard-container {
-            display: flex;
-            flex: 1;
-            padding: 16px;
-            gap: 16px;
-            overflow: hidden;
-        }
+        .dashboard-container { display: flex; flex: 1; padding: 16px; gap: 16px; overflow: hidden; }
 
-        .left-panel {
-            width: 320px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
+        .left-panel { width: 320px; display: flex; flex-direction: column; gap: 16px; }
 
-        .card-panel {
-            background: #ffffff;
-            color: #1e293b;
-            border-radius: 8px;
-            padding: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: flex;
-            flex-direction: column;
-        }
+        .card-panel { background: #ffffff; color: #1e293b; border-radius: 8px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; flex-direction: column; }
 
-        .panel-title {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: #0d3b66;
-            margin-bottom: 12px;
-        }
+        .panel-title { font-size: 0.85rem; font-weight: 700; color: #0d3b66; margin-bottom: 12px; }
 
-        .users-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            overflow-y: auto;
-            flex: 1;
-        }
+        .users-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex: 1; }
 
-        .user-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            padding: 8px 10px;
-            border-radius: 6px;
-        }
+        .user-item { display: flex; align-items: center; justify-content: space-between; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 10px; border-radius: 6px; }
 
         .user-info { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.8rem; }
         .user-tag { background: #e2e8f0; color: #64748b; font-size: 0.68rem; padding: 2px 6px; border-radius: 4px; }
 
-        .status-badge {
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 12px;
-        }
+        .status-badge { font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 12px; }
 
         .status-online { background-color: #dcfce7; color: #15803d; }
+        .status-offline { background-color: #fcdcdc; color: #801515; }
+        .status-block { background-color: #d3cdcd; color: #000000; }
 
         /* TERMINAL DE CONSOLE */
-        .console-panel {
-            flex: 1;
-            background-color: #050505;
-            border-radius: 8px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid #1e293b;
-            font-family: 'Courier New', Courier, monospace;
-        }
+        .console-panel { flex: 1; background-color: #050505; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; border: 1px solid #1e293b; font-family: 'Courier New', Courier, monospace; }
 
-        .console-header {
-            color: #00ff66;
-            font-size: 0.9rem;
-            font-weight: bold;
-            margin-bottom: 12px;
-        }
+        .console-header { color: #00ff66; font-size: 0.9rem; font-weight: bold; margin-bottom: 12px; }
 
-        .console-logs {
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            font-size: 0.82rem;
-            line-height: 1.4;
-        }
+        .console-logs { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; font-size: 0.82rem; line-height: 1.4; }
 
         .log-line { display: flex; gap: 8px; word-break: break-all; }
         .log-time { color: #64748b; }
@@ -237,14 +130,15 @@
         .log-type-err { color: #ef4444; font-weight: bold; }
         .log-text { color: #f8fafc; }
 
-        .metrics-card {
-            background-color: #bae6fd;
-            color: #0369a1;
-            border-radius: 8px;
-            padding: 12px 16px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
+        .metrics-card { background-color: #bae6fd; color: #0369a1; border-radius: 8px; padding: 12px 16px; font-size: 0.8rem; font-weight: 600; }
+
+        /* Posição relativa para acomodar o botão absoluto */
+        .user-item { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 10px 32px 10px 10px; /* Padding extra na direita para o botão não sobrepor */ background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; }
+
+        /* BOTÃO DE BLOQUEIO NO CANTO SUPERIOR DIREITO */
+        .btn-block-user { position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: #94a3b8; font-size: 0.85rem; cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: all 0.2s ease; }
+
+        .btn-block-user:hover { color: #ef4444; background-color: #fee2e2; }
     </style>
 </head>
 <body>
@@ -391,20 +285,14 @@
                     <div class="panel-title">❖ USUÁRIOS ATIVOS NA SESSÃO</div>
                     <div class="users-list" id="usersList">
                         <!-- Conteúdo estático de exemplo -->
-                        <div class="user-item">
-                            <div class="user-info">
-                                👤 Admin Monitor
-                                <span class="user-tag">ws_001</span>
-                            </div>
-                            <div class="status-badge status-online">● ONLINE</div>
-                        </div>
+
                     </div>
                 </div>
 
                 <div class="metrics-card">
                     <div>📊 MÉTRICAS DO SERVIDOR WS</div>
                     <div style="margin-top: 4px;">
-                        Status: <span style="color:#15803d">Conectado</span>
+                        Latência Média: <strong id="latenciaMedia">0ms</strong>
                     </div>
                 </div>
             </div>
@@ -416,11 +304,6 @@
                 </div>
                 <div class="console-logs" id="consoleLogs">
                     <!-- Registros visuais estáticos -->
-                    <div class="log-line">
-                        <span class="log-time">00:00:00.000</span>
-                        <span class="log-type-in">[SYS]</span>
-                        <span class="log-text">Painel pronto para exibição.</span>
-                    </div>
                 </div>
             </div>
         </div>
@@ -441,8 +324,13 @@
         usuarioLogado.id_quadro = salaAtiva.id_quadro || salaAtiva.id;
         document.getElementById('roomTitle').innerText = `KANBAN LIVE — ${salaAtiva.nome_projeto || salaAtiva.codigo}`;
 
-        // Variable global para armazenar o ID da primeira coluna cadastrada
+        // Variable global
         let primeiraColunaId = null;
+        let historicoLogsGeral = [];
+        let historicoLatencias = [];
+        let inicioMedicaoMs = 0;
+        let todosMembrosQuadro = [];
+        let idsBloqueadosGeral = [];
 
         // --- CONEXÃO WEBSOCKET ---
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -463,12 +351,49 @@
             statusText.innerText = 'WS: DESCONECTADO';
         };
 
+        const wsSendOriginal = ws.send;
+        ws.send = function (data) {
+            inicioMedicaoMs = performance.now(); // Grava o instante do envio
+            atualizarMetricasWS();
+            return wsSendOriginal.apply(this, arguments);
+        };
+
         ws.onmessage = (event) => {
+
+
+            // Calcula a latência baseada no tempo entre o envio (ws.send) e a resposta do servidor
+            if (inicioMedicaoMs > 0) {
+                const latenciaCalculada = Math.round(performance.now() - inicioMedicaoMs);
+                inicioMedicaoMs = 0; // Reseta a medição
+                atualizarMetricasWS(latenciaCalculada);
+            } else {
+                atualizarMetricasWS();
+            }
+
             const { type, payload } = JSON.parse(event.data);
 
+            if (type === 'USER_BLOCKED_KICK') {
+                console.warn('⚠️ Usuário bloqueado recebido do servidor.');
+
+                // Cancela manipuladores de reconexão automática (se houver)
+                ws.onclose = null;
+                ws.onerror = null;
+
+                // Alerta e redireciona imediatamente
+                alert(payload.msg || 'Acesso revogado: Você foi bloqueado pelo administrador deste quadro.');
+
+                ws.close();
+                window.location.href = '/JoinRoom'; // Altere para a sua página de projetos/login
+                return; // Interrompe o resto da execução do script
+            }
             if (type === 'INITIAL_STATE') {
                 renderBoard(payload.columns);
                 renderUsers(payload.users);
+                todosMembrosQuadro = payload.membros || [];
+                idsBloqueadosGeral = payload.bloqueados || [];
+                renderUsersModalLog(todosMembrosQuadro, payload.users, idsBloqueadosGeral);
+                historicoLogsGeral = Array.isArray(payload.logs) ? payload.logs : [];
+                renderizarLogs(historicoLogsGeral);
 
                 // Garante a exibição do botão caso o perfil venha no estado inicial do servidor
                 const btnLogs = document.getElementById('btnLogsFeed');
@@ -491,10 +416,23 @@
             }
             if (type === 'NEW_LOG') {
                 appendLogItem(payload);
+                historicoLogsGeral.unshift(payload);
+                renderizarLogs(historicoLogsGeral);
             }
             if (type === 'USERS_UPDATE') {
                 renderUsers(payload.users);
-                if (payload.msg) broadcastMsg.innerText = payload.msg;
+                renderUsersModalLog(todosMembrosQuadro, payload.users);
+                // Se o backend enviar os bloqueados atualizados no USERS_UPDATE
+                if (payload.bloqueados) {
+                    idsBloqueadosGeral = payload.bloqueados;
+                }
+
+                renderUsersModalLog(todosMembrosQuadro, payload.users, idsBloqueadosGeral);
+                if (payload.msg && broadcastMsg) broadcastMsg.innerText = payload.msg;
+            }
+            if (type === 'USER_BLOCKED_STATUS_CHANGED') {
+                idsBloqueadosGeral = payload.bloqueados || [];
+                renderUsersModalLog(todosMembrosQuadro, payload.users, idsBloqueadosGeral);
             }
             if (type === 'TASK_CREATED') {
                 addTaskToDOM(payload.task);
@@ -776,6 +714,166 @@
                 });
             }
         }
+        function renderUsersModalLog(membrosQuadro, usuariosOnline = [], idsBloqueados = []) {
+            const usersList = document.getElementById('usersList');
+            if (!usersList) return;
+
+            usersList.innerHTML = '';
+
+            // Garante que trabalharemos com arrays válidos
+            const listaMembros = Array.isArray(membrosQuadro) ? membrosQuadro : [];
+            const listaOnline = Array.isArray(usuariosOnline) ? usuariosOnline : [];
+            const listaBloqueados = Array.isArray(idsBloqueados) ? idsBloqueados.map(Number) : [];
+
+            if (listaMembros.length === 0) {
+                usersList.innerHTML = '<div style="color: #64748b; font-size: 0.8rem; padding: 8px;">Nenhum integrante vinculado a este quadro.</div>';
+                return;
+            }
+
+            // Mapeia os IDs dos usuários ativos para consulta rápida
+            const idsOnline = new Set(listaOnline.map(u => u.id_user || u.id_usuario));
+            const setBloqueados = new Set(listaBloqueados);
+
+            listaMembros.forEach((membro, index) => {
+                if (!membro) return;
+
+                const idMembro = Number(membro.id_usuario);
+                const nomeMembro = membro.nome || 'Usuário';
+
+
+                const isBloqueado = setBloqueados.has(idMembro);
+                const isOnline = idsOnline.has(idMembro);
+
+                const item = document.createElement('div');
+                item.className = 'user-item';
+
+                let badgeHTML = '';
+                let btnHTML = '';
+
+                if (isBloqueado) {
+                    badgeHTML = `<div class="status-badge status-block"">🚫 BLOQUEADO</div>`;
+                    btnHTML = `<button class="btn-block-user btn-unblock" title="Desbloquear usuário neste quadro">🔓</button>`;
+                } else if (isOnline) {
+                    badgeHTML = `<div class="status-badge status-online">✔ ONLINE</div>`;
+                    btnHTML = `<button class="btn-block-user" title="Bloquear usuário neste quadro">🚫</button>`;
+                } else {
+                    badgeHTML = `<div class="status-badge status-offline">✖ DESCONECTADO</div>`;
+                    btnHTML = `<button class="btn-block-user" title="Bloquear usuário neste quadro">🚫</button>`;
+                }
+
+                item.innerHTML = `
+                    ${btnHTML}
+                    <div style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+                        <div class="user-info" style="justify-content: space-between;">
+                            <span>👤 <strong>${nomeMembro}</strong></span>
+                            <span class="user-tag">ws_00${index + 1}</span>
+                        </div>
+                        <div>
+                            ${badgeHTML}
+                        </div>
+                    </div>
+                `;
+                const btnAction = item.querySelector('.btn-block-user');
+                if (btnAction) {
+                    btnAction.addEventListener('click', () => {
+                        if (isBloqueado) {
+                            desbloquearUsuario(idMembro, nomeMembro);
+                        } else {
+                            bloquearUsuario(idMembro, nomeMembro);
+                        }
+                    });
+                }
+                usersList.appendChild(item);
+            });
+        }
+
+        function bloquearUsuario(idUsuarioAlvo, nomeUsuario) {
+            if (confirm(`Tem certeza que deseja bloquear o usuário "${nomeUsuario}" neste quadro?`)) {
+                // Envia a solicitação via WebSocket para o servidor
+                ws.send(JSON.stringify({
+                    type: 'BLOQUEAR_USUARIO',
+                    payload: {
+                        id_usuario_bloqueado: idUsuarioAlvo,
+                        nome_usuario_bloqueado: nomeUsuario
+                    }
+                }));
+            }
+        }
+
+        function desbloquearUsuario(idUsuarioAlvo, nomeUsuario) {
+            if (confirm(`Deseja desbloquear o usuário "${nomeUsuario}" neste quadro?`)) {
+                ws.send(JSON.stringify({
+                    type: 'DESBLOQUEAR_USUARIO',
+                    payload: {
+                        id_usuario_desbloqueado: idUsuarioAlvo,
+                        nome_usuario_desbloqueado: nomeUsuario
+                    }
+                }));
+            }
+        }
+
+        function renderizarLogs(logs) {
+            const consoleLogs = document.getElementById('consoleLogs');
+            if (!consoleLogs) return;
+
+            consoleLogs.innerHTML = '';
+
+            if (!Array.isArray(logs) || logs.length === 0) {
+                consoleLogs.innerHTML = '<div class="log-line"><span class="log-text">Nenhum registro de log encontrado.</span></div>';
+                return;
+            }
+
+            // Cria uma cópia e inverte para exibir em ordem cronológica de leitura (antigo -> novo)
+            const logsOrdenados = [...logs].reverse();
+
+            logsOrdenados.forEach(log => {
+                const linha = document.createElement('div');
+                linha.className = 'log-line';
+
+                const dataFormatada = log.timestamp_evento
+                    ? new Date(log.timestamp_evento).toLocaleTimeString('pt-BR')
+                    : new Date().toLocaleTimeString('pt-BR');
+
+                const tipoEvento = log.tipo_evento || 'LOG';
+                const detalhes = typeof log.detalhes_payload === 'object'
+                    ? JSON.stringify(log.detalhes_payload)
+                    : (log.detalhes_payload || '');
+
+                linha.innerHTML = `
+            <span class="log-time">${dataFormatada}</span>
+            <span class="log-type-in">[${tipoEvento}]</span>
+            <span class="log-text">${detalhes}</span>
+        `;
+
+                consoleLogs.appendChild(linha);
+            });
+
+            // Rola automaticamente o console para a mensagem mais recente
+            consoleLogs.scrollTop = consoleLogs.scrollHeight;
+        }
+
+        function atualizarMetricasWS(latencia = null) {
+            //  Cálculo da Latência Média
+            if (latencia !== null && latencia > 0) {
+                historicoLatencias.push(latencia);
+                // Mantém apenas os últimos 10 testes de latência para a média ser precisa e atual
+                if (historicoLatencias.length > 10) historicoLatencias.shift();
+
+                const soma = historicoLatencias.reduce((acc, curr) => acc + curr, 0);
+                const media = Math.round(soma / historicoLatencias.length);
+
+                const elLatencia = document.getElementById('latenciaMedia');
+                if (elLatencia) {
+                    elLatencia.innerText = `${media}ms`;
+                }
+            }
+        }
+        setInterval(() => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                inicioPing = performance.now();
+                ws.send(JSON.stringify({ type: 'PING' }));
+            }
+        }, 5000);
 
         function lockCard(idTarefa, isCurrentOwner = false) {
             const card = document.querySelector(`.card[data-id="${idTarefa}"]`);
