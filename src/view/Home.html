@@ -139,13 +139,51 @@
         .btn-block-user { position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: #94a3b8; font-size: 0.85rem; cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: all 0.2s ease; }
 
         .btn-block-user:hover { color: #ef4444; background-color: #fee2e2; }
+
+        .btn-toggle-feed { display: none; background: rgba(255, 255, 255, 0.15); border: none; color: #fff; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 1.1rem; align-items: center; justify-content: center; }
+
+        /* REGRA RESPONSIVA PARA TELAS PEQUENAS (Móvel / < 768px) */
+        @media (max-width: 768px) {
+            /* Exibe o botão de alternar no header */
+            .btn-toggle-feed { display: flex; }
+
+            /* O Feed vira uma gaveta lateral flutuante (Drawer) */
+            .activity-feed { position: fixed; top: 0; right: -100%; /* Inicia escondido fora da tela */ width: 85%; max-width: 320px; height: 100vh; z-index: 1001; transition: right 0.3s ease-in-out; box-shadow: -4px 0 15px rgba(0, 0, 0, 0.3); }
+
+            /* Classe ativada pelo JS para abrir o feed */
+            .activity-feed.open { right: 0; }
+
+            /* Overlay escuro de fundo ao abrir a gaveta */
+            .feed-drawer-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px); z-index: 1000; }
+
+            .feed-drawer-overlay.active { display: block; }
+
+            .logs-modal-container { height: 90vh; max-height: 90vh; }
+
+            /* Muda o layout de lado-a-lado para empilhado (coluna) */
+            .dashboard-container { flex-direction: column; overflow-y: auto; padding: 12px; gap: 12px; }
+
+            /* Painel esquerdo ocupa 100% da largura */
+            .left-panel { width: 100%; min-height: auto; }
+
+            .card-panel { max-height: 220px; /* Limita a altura da lista de usuários para não ocupar a tela toda */ }
+
+            /* Terminal de console empilha abaixo das métricas */
+            .console-panel { width: 100%; min-height: 250px; /* Garante espaço visível pro terminal em baixo */ flex: none; }
+
+            .log-line { font-size: 0.75rem; /* Ajusta a fonte do log para telas pequenas */ }
+
+            .card { /* Impede que o navegador intercepte o toque como scroll apenas ao tocar no card */ touch-action: none; -webkit-user-select: none; user-select: none; }
+        }
     </style>
 </head>
+<script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.0/DragDropTouch.js"></script>
 <body>
 
 <header>
     <div class="logo-title">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h4v16H4V4zm6 0h4v10h-4V4zm6 0h4v6h-4V4z"/></svg>
+        <button id="btnToggleFeed" class="btn-toggle-feed" title="Histórico de Atividades">📋</button>
         <span id="roomTitle">KANBAN LIVE</span>
     </div>
     <div class="status-bar">
@@ -156,16 +194,19 @@
     </div>
 </header>
 
+<div id="feedOverlay" class="feed-drawer-overlay"></div>
+
 <div class="main-wrapper">
     <main class="kanban-board" id="kanbanBoard">
         <!-- As colunas serão injetadas dinamicamente via JS -->
     </main>
 
     <!-- Feed Lateral de Histórico -->
-    <aside class="activity-feed">
+    <aside class="activity-feed" id="activityFeed">
         <div class="feed-header">
             <span>📋 Histórico de Atividades</span>
             <a href="#" id="btnLogsFeed" class="btn-logs-feed" title="Gerenciar Logs">⚙️</a>
+            <button id="btnCloseFeedMobile" class="btn-close-modal" style="font-size: 1.4rem; display: none;" title="Fechar">&times;</button>
         </div>
         <div class="feed-list" id="activityFeedList"></div>
     </aside>
@@ -894,6 +935,16 @@
             card.setAttribute('draggable', 'true');
         }
 
+        function toggleFeed() {
+            if (activityFeed) activityFeed.classList.toggle('open');
+            if (feedOverlay) feedOverlay.classList.toggle('active');
+        }
+
+        function closeFeed() {
+            if (activityFeed) activityFeed.classList.remove('open');
+            if (feedOverlay) feedOverlay.classList.remove('active');
+        }
+
         window.openEditModal = function(idTarefa) {
             const card = document.querySelector(`.card[data-id="${idTarefa}"]`);
             if (!card) return;
@@ -950,6 +1001,10 @@
         const logsModal = document.getElementById('logsModal');
         const btnLogsFeed = document.getElementById('btnLogsFeed');
         const btnCloseLogsModal = document.getElementById('btnCloseLogsModal');
+        const btnToggleFeed = document.getElementById('btnToggleFeed');
+        const btnCloseFeedMobile = document.getElementById('btnCloseFeedMobile');
+        const activityFeed = document.getElementById('activityFeed');
+        const feedOverlay = document.getElementById('feedOverlay');
 
         document.getElementById('btnOpenModal').onclick = () => modal.classList.add('active');
         document.getElementById('btnCloseModal').onclick = () => {
@@ -1037,6 +1092,10 @@
                 modal.classList.remove('active');
             };
         }
+
+        if (btnToggleFeed) btnToggleFeed.addEventListener('click', toggleFeed);
+        if (btnCloseFeedMobile) btnCloseFeedMobile.addEventListener('click', closeFeed);
+        if (feedOverlay) feedOverlay.addEventListener('click', closeFeed);
     });
 </script>
 </body>
