@@ -7,7 +7,6 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: #f3f4f6; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-
         header { background-color: #0d3b66; color: #ffffff; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
         .logo-title { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; letter-spacing: 0.5px; }
         .status-bar { display: flex; align-items: center; gap: 16px; }
@@ -16,34 +15,24 @@
         .status-dot.online { background-color: #10b981; }
         .avatars { display: flex; gap: -4px; }
         .avatar { width: 28px; height: 28px; border-radius: 50%; background-color: #4b5563; border: 2px solid #0d3b66; color: #fff; font-size: 0.7rem; font-weight: 600; display: flex; align-items: center; justify-content: center; margin-left: -6px; }
-
         .kanban-board { flex: 1; display: flex; gap: 16px; padding: 20px 24px; overflow-x: auto; }
         .column { background-color: #e5e7eb; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 12px; height: 100%; min-width: 260px; flex: 1; }
         .column-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 2px solid #0d3b66; font-weight: 700; font-size: 0.85rem; color: #0d3b66; }
-
         .cards-container { display: flex; flex-direction: column; gap: 10px; flex: 1; overflow-y: auto; }
         .card { background-color: #ffffff; border-radius: 6px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 8px; position: relative; }
         .card-title { font-size: 0.9rem; font-weight: 600; color: #1f2937; }
         .card-desc { font-size: 0.78rem; color: #4b5563; line-height: 1.3; }
         .card-footer { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: #6b7280; }
         .tag { font-size: 0.7rem; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
-        .tag-alta, .tag-crítica { color: #dc2626; background: #fef2f2; }
-        .tag-média { color: #d97706; background: #fffbebfb; }
-        .tag-baixa { color: #059669; background: #ecfdf5; }
-
         .ws-broadcast { background-color: #fef3c7; color: #b45309; font-size: 0.8rem; padding: 8px 24px; border-top: 1px solid #fde68a; display: flex; align-items: center; gap: 8px; }
-
         /* Botão Flutuante (FAB) */
         .fab { position: fixed; bottom: 32px; right: 32px; width: 56px; height: 56px; border-radius: 50%; background-color: #0d3b66; color: #ffffff; font-size: 28px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; transition: transform 0.2s, background-color 0.2s; z-index: 99; }
         .fab:hover { transform: scale(1.08); background-color: #1d4ed8; }
-
         /* Modal */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px); justify-content: center; align-items: center; z-index: 1000; }
         .modal-overlay.active { display: flex; }
         .modal-card { background: #ffffff; border-radius: 10px; width: 100%; max-width: 420px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: fadeIn 0.2s ease-out; }
-
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .modal-header h3 { color: #0d3b66; font-size: 1.2rem; }
         .btn-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #6b7280; }
@@ -55,124 +44,77 @@
         .btn-cancel { background: #e5e7eb; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; color: #374151; font-weight: 600; }
         .btn-submit { background: #0d3b66; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; color: #ffffff; font-weight: 600; }
         .btn-submit:hover { background-color: #1d4ed8; }
-
         .card-action-badge { font-size: 0.68rem; font-weight: 700; color: #1d4ed8; background-color: #eff6ff; border: 1px solid #bfdbfe; padding: 2px 6px; border-radius: 4px; display: none; /* Fica oculto até receber uma ação */ animation: pulse 1s infinite alternate; }
         @keyframes pulse { from { opacity: 0.6; } to { opacity: 1; } }
-
         .card-info-btn { position: absolute; top: 8px; right: 8px; background: transparent; border: none; color: #9ca3af; cursor: pointer; font-size: 14px; padding: 2px 6px; border-radius: 4px; transition: background-color 0.2s, color 0.2s; }
         .card-info-btn:hover { background-color: #f3f4f6; color: #1f2937; }
         /* Estilo do botão de Excluir no Modal */
         .btn-delete { background-color: #ef4444; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; color: #ffffff; font-weight: 600; margin-right: auto; /* Empurra o botão para a esquerda do rodapé do modal */ }
         .btn-delete:hover { background-color: #dc2626; }
-
         .card.locked { opacity: 0.6; pointer-events: none; /* Impede novos cliques ou arrastes por outros usuários */ border: 2px dashed #f59e0b !important; background-color: #fffbeb; }
         .card.locked .card-info-btn { display: none; }
-
         .main-wrapper { display: flex; flex: 1; overflow: hidden; }
-
         /* Feed Lateral de Atividades */
         .activity-feed { width: 300px; background-color: #ffffff; border-left: 1px solid #e5e7eb; display: flex; flex-direction: column; box-shadow: -2px 0 6px rgba(0,0,0,0.03); }
         .feed-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; font-weight: bold; color: #f8fafc; border-bottom: 1px solid #334155; background-color: #0f172a; }
         .feed-list { flex: 1; overflow-y: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
         .feed-item { font-size: 0.78rem; color: #374151; padding: 8px 10px; background-color: #f9fafb; border-left: 3px solid #0d3b66; border-radius: 4px; }
         .feed-time { font-size: 0.7rem; color: #9ca3af; font-weight: 600; margin-bottom: 2px; }
-
-        .btn-logs-nav { display: inline-flex; align-items: center; gap: 6px; background-color: #1e293b; color: #00ff66; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; border: 1px solid #334155; transition: background 0.2s; }
-        .btn-logs-nav:hover { background-color: #334155; }
-
         .btn-logs-feed { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 16px; width: 28px; height: 28px; border-radius: 6px; background-color: #1e293b; border: 1px solid #334155; transition: background-color 0.2s, transform 0.2s; cursor: pointer; }
         .btn-logs-feed:hover { background-color: #334155; transform: rotate(45deg); }
-
         .logs-modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); z-index: 9999; display: none; /* Inicia oculto */ align-items: center; justify-content: center; padding: 20px; }
-
         .logs-modal-container { background-color: #0f172a; border: 1px solid #334155; border-radius: 12px; width: 95vw; max-width: 1200px; height: 85vh; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); overflow: hidden; }
-
         /* CABEÇALHO DO MODAL */
         .logs-modal-header { background-color: #03254c; color: #ffffff; padding: 14px 24px; font-size: 1.1rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e293b; }
-
         .btn-close-modal { background: transparent; border: none; color: #94a3b8; font-size: 1.8rem; cursor: pointer; line-height: 1; transition: color 0.2s; }
-
         .btn-close-modal:hover { color: #ef4444; }
-
         /* CONTAINER DO DASHBOARD */
         .dashboard-container { display: flex; flex: 1; padding: 16px; gap: 16px; overflow: hidden; }
-
         .left-panel { width: 320px; display: flex; flex-direction: column; gap: 16px; }
-
         .card-panel { background: #ffffff; color: #1e293b; border-radius: 8px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; flex-direction: column; }
-
         .panel-title { font-size: 0.85rem; font-weight: 700; color: #0d3b66; margin-bottom: 12px; }
-
         .users-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex: 1; }
-
-        .user-item { display: flex; align-items: center; justify-content: space-between; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 10px; border-radius: 6px; }
-
         .user-info { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.8rem; }
         .user-tag { background: #e2e8f0; color: #64748b; font-size: 0.68rem; padding: 2px 6px; border-radius: 4px; }
-
         .status-badge { font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 12px; }
-
         .status-online { background-color: #dcfce7; color: #15803d; }
         .status-offline { background-color: #fcdcdc; color: #801515; }
         .status-block { background-color: #d3cdcd; color: #000000; }
-
         /* TERMINAL DE CONSOLE */
         .console-panel { flex: 1; background-color: #050505; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; border: 1px solid #1e293b; font-family: 'Courier New', Courier, monospace; }
-
         .console-header { color: #00ff66; font-size: 0.9rem; font-weight: bold; margin-bottom: 12px; }
-
         .console-logs { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; font-size: 0.82rem; line-height: 1.4; }
-
         .log-line { display: flex; gap: 8px; word-break: break-all; }
         .log-time { color: #64748b; }
         .log-type-in { color: #00ff66; font-weight: bold; }
-        .log-type-out { color: #38bdf8; font-weight: bold; }
-        .log-type-err { color: #ef4444; font-weight: bold; }
         .log-text { color: #f8fafc; }
-
         .metrics-card { background-color: #bae6fd; color: #0369a1; border-radius: 8px; padding: 12px 16px; font-size: 0.8rem; font-weight: 600; }
-
         /* Posição relativa para acomodar o botão absoluto */
-        .user-item { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 10px 32px 10px 10px; /* Padding extra na direita para o botão não sobrepor */ background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; }
-
+        .user-item { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 10px 32px 10px 10px; /* Padding extra na direita para o botão não sobrepor */ background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; align-items: center; justify-content: space-between; }
         /* BOTÃO DE BLOQUEIO NO CANTO SUPERIOR DIREITO */
         .btn-block-user { position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: #94a3b8; font-size: 0.85rem; cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: all 0.2s ease; }
-
         .btn-block-user:hover { color: #ef4444; background-color: #fee2e2; }
-
         .btn-toggle-feed { display: none; background: rgba(255, 255, 255, 0.15); border: none; color: #fff; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 1.1rem; align-items: center; justify-content: center; }
-
         /* REGRA RESPONSIVA PARA TELAS PEQUENAS (Móvel / < 768px) */
         @media (max-width: 768px) {
             /* Exibe o botão de alternar no header */
             .btn-toggle-feed { display: flex; }
-
             /* O Feed vira uma gaveta lateral flutuante (Drawer) */
             .activity-feed { position: fixed; top: 0; right: -100%; /* Inicia escondido fora da tela */ width: 85%; max-width: 320px; height: 100vh; z-index: 1001; transition: right 0.3s ease-in-out; box-shadow: -4px 0 15px rgba(0, 0, 0, 0.3); }
-
             /* Classe ativada pelo JS para abrir o feed */
             .activity-feed.open { right: 0; }
-
             /* Overlay escuro de fundo ao abrir a gaveta */
             .feed-drawer-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px); z-index: 1000; }
-
             .feed-drawer-overlay.active { display: block; }
-
             .logs-modal-container { height: 90vh; max-height: 90vh; }
-
             /* Muda o layout de lado-a-lado para empilhado (coluna) */
             .dashboard-container { flex-direction: column; overflow-y: auto; padding: 12px; gap: 12px; }
-
             /* Painel esquerdo ocupa 100% da largura */
             .left-panel { width: 100%; min-height: auto; }
-
             .card-panel { max-height: 220px; /* Limita a altura da lista de usuários para não ocupar a tela toda */ }
-
             /* Terminal de console empilha abaixo das métricas */
             .console-panel { width: 100%; min-height: 250px; /* Garante espaço visível pro terminal em baixo */ flex: none; }
-
             .log-line { font-size: 0.75rem; /* Ajusta a fonte do log para telas pequenas */ }
-
             .card { /* Impede que o navegador intercepte o toque como scroll apenas ao tocar no card */ touch-action: none; -webkit-user-select: none; user-select: none; }
         }
     </style>
@@ -424,8 +366,8 @@
                 alert(payload.msg || 'Acesso revogado: Você foi bloqueado pelo administrador deste quadro.');
 
                 ws.close();
-                window.location.href = '/JoinRoom'; // Altere para a sua página de projetos/login
-                return; // Interrompe o resto da execução do script
+                window.location.href = '/JoinRoom';
+                return;
             }
             if (type === 'INITIAL_STATE') {
                 renderBoard(payload.columns);
@@ -603,7 +545,7 @@
                         const idTarefa = e.dataTransfer.getData('text/plain');
                         const idNovaColuna = col.id_coluna;
 
-                        // Move visualmente de imediato (UX mais fluida)
+                        // Move visualmente de imediato
                         const cardElement = document.querySelector(`.card[data-id="${idTarefa}"]`);
                         if (cardElement) {
                             cardsContainer.appendChild(cardElement);
@@ -981,7 +923,6 @@
         const modal = document.getElementById('taskModal');
         const formTask = document.getElementById('formCreateTask');
         const btnCancelModal = document.getElementById('btnCancelModal');
-        const editModal = document.getElementById('editTaskModal');
         const closeEditModal = () => {
             const id_tarefa = Number(document.getElementById('editTaskId').value);
 

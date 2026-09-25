@@ -2,8 +2,8 @@ const { WebSocketServer, WebSocket } = require('ws');
 const supabase = require('../config/supabase');
 
 const state = {
-    users: new Map(), // ws -> { id_user, nome_user, avatar }
-    room: new Map(),  // ws -> { id_room, nome_quadro, codigo }
+    users: new Map(), // ws -> { id_user }
+    room: new Map(),  // ws -> { id_room }
 };
 
 function getOnlineUsers(idQuadro) {
@@ -92,7 +92,7 @@ function setupWebSocket(server) {
                         return;
                     }
 
-                    // 1. Instancia usuário e sala da sessão
+                    // Instancia usuário e sala da sessão
                     const nomeCompleto = usuario?.nome_completo || usuario?.nome || usuario?.nome_user || 'Usuário';
                     currentUser = {
                         id_user: idUsuario,
@@ -108,7 +108,7 @@ function setupWebSocket(server) {
                     };
                     state.room.set(ws, currentRoom);
 
-                    // 2. Atualiza status no banco (se ID do usuário for válido)
+                    // Atualiza status no banco (se ID do usuário for válido)
                     if (idUsuario && !isNaN(Number(idUsuario))) {
                         await supabase
                             .from('usuario')
@@ -160,7 +160,7 @@ function setupWebSocket(server) {
                         console.error('Erro ao buscar dados do quadro:', err);
                     }
 
-                    // 3. Busca no Supabase as colunas com suas respectivas tarefas
+                    // Busca no Supabase as colunas com suas respectivas tarefas
                     const { data: colunas, error: errCol } = await supabase
                         .from('coluna')
                         .select(`
@@ -193,7 +193,7 @@ function setupWebSocket(server) {
                         console.error('Erro ao buscar estado do quadro:', errCol);
                     }
 
-                    // 4. Envia o INITIAL_STATE completo para o cliente recém-conectado
+                    // Envia o INITIAL_STATE completo para o cliente recém-conectado
                     ws.send(JSON.stringify({
                         type: 'INITIAL_STATE',
                         payload: {
@@ -206,7 +206,7 @@ function setupWebSocket(server) {
                         }
                     }));
 
-                    // 5. Notifica apenas os participantes do mesmo quadro
+                    // Notifica apenas os participantes do mesmo quadro
                     broadcastRoom(wss, currentRoom.id_room, {
                         type: 'USERS_UPDATE',
                         payload: {
@@ -215,7 +215,7 @@ function setupWebSocket(server) {
                         }
 
                     });
-                    // 6. REGISTRA O LOG NO BANCO E TRANSMITE VIA BROADCAST
+                    // REGISTRA O LOG NO BANCO E TRANSMITE VIA BROADCAST
                     await registrarEBroadcastLog(
                         wss,
                         currentRoom.id_room,
@@ -293,7 +293,7 @@ function setupWebSocket(server) {
                     }
 
                     try {
-                        // 1. Atualiza a coluna da tarefa no Supabase
+                        // Atualiza a coluna da tarefa no Supabase
                         const { error } = await supabase
                             .from('cartao_tarefa')
                             .update({
@@ -308,7 +308,7 @@ function setupWebSocket(server) {
                             return;
                         }
 
-                        // 2. Retransmite o evento CARD_MOVED para todos os conectados da sala
+                        // Retransmite o evento CARD_MOVED para todos os conectados da sala
                         const roomId = currentRoom ? currentRoom.id_room : null;
                         if (roomId) {
                             broadcastRoom(wss, roomId, {
@@ -376,7 +376,7 @@ function setupWebSocket(server) {
                     if (!id_tarefa) return;
 
                     try {
-                        // 1. Remove do banco no Supabase
+                        // Remove do banco no Supabase
                         const { error } = await supabase
                             .from('cartao_tarefa')
                             .delete()
@@ -391,7 +391,7 @@ function setupWebSocket(server) {
                             return;
                         }
 
-                        // 2. Transmite a ordem de remoção visual para a sala
+                        // Transmite a ordem de remoção visual para a sala
                         const roomId = currentRoom ? currentRoom.id_room : null;
                         if (roomId) {
                             broadcastRoom(wss, roomId, {
@@ -592,7 +592,7 @@ function setupWebSocket(server) {
                     }
 
                     try {
-                        // 1. Remove do banco usuario_bloqueado_quadro
+                        // Remove do banco usuario_bloqueado_quadro
                         const { error: errDelete } = await supabase
                             .from('usuario_bloqueado_quadro')
                             .delete()
@@ -604,7 +604,7 @@ function setupWebSocket(server) {
                             return;
                         }
 
-                        // 2. Atualiza a flag de 'ativo' para true na tabela usuario_quadro
+                        // Atualiza a flag de 'ativo' para true na tabela usuario_quadro
                         const { error: errUpdate } = await supabase
                             .from('usuario_quadro')
                             .update({ ativo: true })
@@ -615,7 +615,7 @@ function setupWebSocket(server) {
                             console.error('Erro Supabase ao ativar usuário no quadro:', errUpdate);
                         }
 
-                        // 3. Busca lista atualizada de bloqueados da sala
+                        // Busca lista atualizada de bloqueados da sala
                         const { data: bData, error: errSelect } = await supabase
                             .from('usuario_bloqueado_quadro')
                             .select('id_usuario')
@@ -627,7 +627,7 @@ function setupWebSocket(server) {
 
                         const novosBloqueados = bData ? bData.map(b => Number(b.id_usuario)) : [];
 
-                        // 4. Dispara a notificação para a sala via WebSocket
+                        // Dispara a notificação para a sala via WebSocket
                         const idSalaWS = currentRoom?.id_room || currentRoom?.id_quadro;
 
                         broadcastRoom(wss, idSalaWS, {

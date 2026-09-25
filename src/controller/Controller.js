@@ -26,11 +26,6 @@ exports.getSalaPage = (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'view', 'Home.html'));
 }
 
-//Renderizar a página de logs
-exports.getLogsPage = (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'view', 'Logs.html'));
-}
-
 // Processa a criação de usuario
 exports.CreateUser = async (req, res) => {
     try {
@@ -54,6 +49,7 @@ exports.CreateUser = async (req, res) => {
     }
 };
 
+// Processa o login de usuario
 exports.LoginUser = async (req, res) => {
     try {
         const { email } = req.body;
@@ -68,7 +64,6 @@ exports.LoginUser = async (req, res) => {
             return res.status(400).json({ sucesso: false, erro: error.message });
         }
 
-        // Se o array de retorno estiver vazio, o usuário não existe
         if (!usuarios || usuarios.length === 0) {
             return res.status(401).json({
                 sucesso: false,
@@ -90,7 +85,6 @@ exports.LoginUser = async (req, res) => {
         // Atualiza a propriedade no objeto local antes de devolver ao front-end
         usuarioLogado.status_online = true;
 
-        // Retorna sucesso e os dados do usuário para o front-end
         return res.status(200).json({
             sucesso: true,
             mensagem: 'Login realizado com sucesso!',
@@ -123,7 +117,6 @@ exports.JoinRoom = async (req, res) => {
             return res.status(400).json({ sucesso: false, erro: error.message });
         }
 
-        // Se não encontrou nenhuma sala com esse código
         if (!quadros || quadros.length === 0) {
             return res.status(404).json({
                 sucesso: false,
@@ -134,7 +127,7 @@ exports.JoinRoom = async (req, res) => {
         const quadroEncontrado = quadros[0];
         const idQuadro = quadroEncontrado.id_quadro;
 
-        // 2. VERIFICAÇÃO DE SEGURANÇA: Usuário está banido/bloqueado nesta sala?
+        // VERIFICAÇÃO DE SEGURANÇA: Usuário está banido/bloqueado nesta sala?
         const { data: bloqueado } = await supabase
             .from('usuario_bloqueado_quadro')
             .select('*')
@@ -149,7 +142,7 @@ exports.JoinRoom = async (req, res) => {
             });
         }
 
-        // 3. Consulta se já existe vínculo na tabela usuario_quadro
+        // Consulta se já existe vínculo na tabela usuario_quadro
         const { data: vinculo, error: errVinculo } = await supabase
             .from('usuario_quadro')
             .select('*')
@@ -161,7 +154,7 @@ exports.JoinRoom = async (req, res) => {
             return res.status(400).json({ sucesso: false, erro: errVinculo.message });
         }
 
-        // 4. Tratamento do Vínculo
+        // Tratamento do Vínculo
         if (!vinculo) {
             // PRIMEIRO ACESSO: Cria a linha setando como membro comum
             const { error: errInsert } = await supabase
@@ -222,7 +215,7 @@ exports.CreateRoom = async (req, res) => {
 
         const quadroCriado = quadro[0];
 
-        // 2. Se o id_usuario for enviado, vincula o criador como 'admin' na tabela usuario_quadro
+        // Se o id_usuario for enviado, vincula o criador como 'admin' na tabela usuario_quadro
         if (id_usuario) {
             const { error: errVinculo } = await supabase
                 .from('usuario_quadro')
@@ -238,7 +231,7 @@ exports.CreateRoom = async (req, res) => {
             }
         }
 
-        // 3. Prepara o array de colunas para inserir na tabela 'coluna'
+        // Prepara o array de colunas para inserir na tabela 'coluna'
         const colunasParaInserir = colunas.map((col, index) => ({
             id_quadro: quadroCriado.id_quadro,
             nome_coluna: col.nome,

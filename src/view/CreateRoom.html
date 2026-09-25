@@ -5,211 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Criar Nova Sala</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #0a192f, #1e3a8a);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #f8fafc;
-            padding: 20px;
-        }
-
-        .container {
-            background-color: #0f172a;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            width: 100%;
-            max-width: 650px;
-            border: 1px solid #1e293b;
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #38bdf8;
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 14px;
-            color: #94a3b8;
-            font-weight: 600;
-        }
-
-        input, textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border-radius: 6px;
-            border: 1px solid #334155;
-            background-color: #1e293b;
-            color: #f8fafc;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 60px;
-        }
-
-        input:focus, textarea:focus {
-            border-color: #38bdf8;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(135deg, #0a192f, #1e3a8a); min-height: 100vh; display: flex; justify-content: center; align-items: center; color: #f8fafc; padding: 20px; }
+        .container { background-color: #0f172a; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); width: 100%; max-width: 650px; border: 1px solid #1e293b; }
+        h2 { text-align: center; margin-bottom: 20px; color: #38bdf8; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 6px; font-size: 14px; color: #94a3b8; font-weight: 600; }
+        input, textarea { width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid #334155; background-color: #1e293b; color: #f8fafc; font-size: 14px; outline: none; transition: border-color 0.3s; }
+        textarea { resize: vertical; min-height: 60px; }
+        input:focus, textarea:focus { border-color: #38bdf8; }
         /* --- SESSÃO DE COLUNAS (CONFORME RASCUNHO) --- */
-        .columns-section {
-            border: 1px solid #334155;
-            background-color: #162032;
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 10px;
-        }
-
-        .columns-container {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding: 8px 4px;
-            align-items: stretch;
-            min-height: 120px;
-        }
-
+        .columns-section { border: 1px solid #334155; background-color: #162032; border-radius: 8px; padding: 12px; margin-top: 10px; }
+        .columns-container { display: flex; gap: 10px; overflow-x: auto; padding: 8px 4px; align-items: stretch; min-height: 120px; }
         /* Card de Coluna */
-        .column-card {
-            background-color: #1e293b;
-            border: 1px solid #3b82f6;
-            border-radius: 6px;
-            padding: 8px;
-            width: 120px;
-            min-width: 120px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            position: relative;
-            cursor: grab;
-            user-select: none;
-            transition: transform 0.2s, opacity 0.2s;
-        }
-
-        .column-card:active {
-            cursor: grabbing;
-        }
-
-        .column-card.dragging {
-            opacity: 0.4;
-            border-style: dashed;
-        }
-
-        .column-header {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 4px;
-        }
-
-        .btn-remove-col {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-            border: 1px solid #ef4444;
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
-        }
-
-        .btn-remove-col:hover {
-            background: #ef4444;
-            color: #fff;
-        }
-
-        .column-card input {
-            font-size: 12px;
-            padding: 6px;
-            text-align: center;
-            background-color: #0f172a;
-            border: 1px solid #475569;
-            margin-top: 4px;
-        }
-
+        .column-card { background-color: #1e293b; border: 1px solid #3b82f6; border-radius: 6px; padding: 8px; width: 120px; min-width: 120px; display: flex; flex-direction: column; justify-content: flex-start; position: relative; cursor: grab; user-select: none; transition: transform 0.2s, opacity 0.2s; }
+        .column-card:active { cursor: grabbing; }
+        .column-card.dragging {opacity: 0.4; border-style: dashed; }
+        .column-header { display: flex; justify-content: flex-end; margin-bottom: 4px; }
+        .btn-remove-col { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; width: 20px; height: 20px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
+        .btn-remove-col:hover { background: #ef4444; color: #fff; }
+        .column-card input { font-size: 12px; padding: 6px; text-align: center; background-color: #0f172a; border: 1px solid #475569; margin-top: 4px; }
         /* Card Botão (+) Adicionar Coluna */
-        .add-column-card {
-            background-color: transparent;
-            border: 2px dashed #475569;
-            border-radius: 6px;
-            width: 80px;
-            min-width: 80px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: border-color 0.3s, background-color 0.3s;
-        }
-
-        .add-column-card:hover {
-            border-color: #38bdf8;
-            background-color: rgba(56, 189, 248, 0.05);
-        }
-
-        .add-column-card span {
-            font-size: 28px;
-            color: #38bdf8;
-            font-weight: bold;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background-color: #059669;
-            color: #ffffff;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin-top: 20px;
-        }
-
-        .btn:hover {
-            background-color: #047857;
-        }
-
-        .footer-link {
-            text-align: center;
-            margin-top: 16px;
-            font-size: 14px;
-            color: #94a3b8;
-        }
-
-        .footer-link a {
-            color: #38bdf8;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .footer-link a:hover {
-            text-decoration: underline;
-        }
+        .add-column-card { background-color: transparent; border: 2px dashed #475569; border-radius: 6px; width: 80px; min-width: 80px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: border-color 0.3s, background-color 0.3s; }
+        .add-column-card:hover { border-color: #38bdf8; background-color: rgba(56, 189, 248, 0.05); }
+        .add-column-card span { font-size: 28px; color: #38bdf8; font-weight: bold; }
+        .btn { width: 100%; padding: 12px; background-color: #059669; color: #ffffff; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background-color 0.3s; margin-top: 20px; }
+        .btn:hover { background-color: #047857; }
+        .footer-link { text-align: center; margin-top: 16px; font-size: 14px; color: #94a3b8; }
+        .footer-link a { color: #38bdf8; text-decoration: none; font-weight: 500; }
+        .footer-link a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -227,7 +51,7 @@
             <input type="text" id="nome_sala" name="nome_sala" placeholder="Nome da sua sala" required>
         </div>
 
-        <!-- SESSÃO DAS COLUNAS (RASCUNHO) -->
+        <!-- SESSÃO DAS COLUNAS -->
         <div class="form-group">
             <label>Colunas da Sala (mínimo 3)*</label>
             <div class="columns-section">
@@ -255,7 +79,6 @@
     // Nomes default iniciais
     const defaultColumns = ["A Fazer", "Em Progresso", "Concluído"];
 
-    // Inicializa a tela com as 3 colunas default
     window.addEventListener('DOMContentLoaded', () => {
         defaultColumns.forEach(title => addColumn(title));
     });
@@ -273,11 +96,10 @@
             <input type="text" class="column-title-input" value="${title}" placeholder="Nome..." required />
         `;
 
-        // Eventos Drag and Drop Nativo
+        // Eventos Drag and Drop
         card.addEventListener('dragstart', () => card.classList.add('dragging'));
         card.addEventListener('dragend', () => card.classList.remove('dragging'));
 
-        // Insere o card antes do botão (+)
         columnsContainer.insertBefore(card, btnAddColumn);
     }
 
@@ -312,7 +134,7 @@
 
         const codigo_sala = document.getElementById('codigo_sala').value;
         const nome_sala = document.getElementById('nome_sala').value;
-        // 1. Faz o parse do localStorage para obter o objeto do usuário
+        // Faz o parse do localStorage para obter o objeto do usuário
         const usuarioStorage = localStorage.getItem('usuarioLogado');
         const usuarioLogado = usuarioStorage ? JSON.parse(usuarioStorage) : null;
         // Extrai especificamente o id_usuario
