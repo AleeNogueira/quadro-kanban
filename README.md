@@ -52,7 +52,19 @@ usuario 02
 nome: tonyTeste
 email: TonyTest@teste.com
 
-quadro
+quadro 01
 codigo: 1234
 
-# TO DO - Logs
+quadro 02
+codigo: 1111
+
+# Finalizado
+
+baixe as dependencias para rodar:
+
+npm
+@supabase/ssr 
+@supabase/supabase-js
+dotenv
+express
+ws
